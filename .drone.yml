@@ -1,0 +1,25 @@
+kind: pipeline
+name: default
+
+steps:
+- name: generate
+  image: golang:1.16
+  commands:
+  - apt-get -qq update && apt-get -qq install -y unzip
+  - wget -q https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/protoc-$PROTOC_VERSION-linux-x86_64.zip -P /tmp
+  - unzip /tmp/protoc-$PROTOC_VERSION-linux-x86_64.zip -d /usr
+  - go install google.golang.org/protobuf/cmd/protoc-gen-go@$PROTOC_GEN_GO_VERSION
+  - protoc -I=$SRC_DIR --go_out=$DST_DIR --go_opt=paths=source_relative $SRC_DIR/*.proto
+  environment:
+    SRC_DIR: api/v1
+    DST_DIR: api/v1
+    PROTOC_VERSION: 3.17.3
+    PROTOC_GEN_GO_VERSION: v1.26.0
+
+- name: test
+  image: golang
+  commands:
+  - go test ./...
+  environment:
+    GOOS: linux
+    GOARCH: amd64
