@@ -1,0 +1,68 @@
+syntax = "proto3";
+package v1;
+option go_package = "github.com/optable/match-cli/api/v1";
+
+// Errors
+
+enum Status {
+  // HTTP 200
+  STATUS_OK = 0;
+  // HTTP 400
+  STATUS_BAD_REQUEST = 1;
+  // HTTP 401
+  STATUS_UNAUTHENTICATED = 5;
+  // HTTP 403
+  STATUS_FORBIDDEN = 8;
+  // HTTP 404
+  STATUS_NOT_FOUND = 4;
+  // HTTP 422
+  STATUS_UNPROCESSABLE = 3;
+  // HTTP 500
+  STATUS_INTERNAL = 2;
+  // HTTP 503
+  STATUS_UNAVAILABLE = 6;
+  // HTTP 504
+  STATUS_TIMEOUT = 7;
+}
+
+message FieldError {
+  string field = 1;
+  string message = 2;
+  map<string, string> params = 3;
+}
+
+message UnprocessableDetails {
+  repeated FieldError fields = 1;
+}
+
+message Error {
+  Status code = 1;
+  string message = 2;
+  oneof details {
+    UnprocessableDetails unprocessable = 3;
+  }
+}
+
+// Listings
+
+message PageReq {
+  int32 page = 1;
+  int32 size = 2;
+}
+
+message SortField {
+  string key = 1;
+  bool desc = 2;
+}
+
+message PageRes {
+  // More pages are available
+  bool has_more = 1;
+  // Total number of rows
+  int64 total = 2;
+}
+
+message TraceContext {
+  string trace_id = 1;
+  string parent_span_id = 2;
+}

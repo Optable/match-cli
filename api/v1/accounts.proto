@@ -1,0 +1,129 @@
+syntax = "proto3";
+package v1;
+option go_package = "github.com/optable/match-cli/api/v1";
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+enum AccountKind {
+  ACCOUNT_KIND_UNKNOWN = 0;
+  ACCOUNT_KIND_USER = 1;
+  ACCOUNT_KIND_SERVICE = 2;
+}
+
+enum AccountStatus {
+  ACCOUNT_STATUS_ACTIVE = 0;
+  ACCOUNT_STATUS_INACTIVE = 1;
+  ACCOUNT_STATUS_UNKNOWN = 2;
+}
+
+message Account {
+  int32 id = 1;
+  AccountKind kind = 2;
+  string name = 3;
+  string email = 4;
+  string secret = 5;
+  bytes encrypted_secret = 6;
+  AccountStatus status = 7;
+  repeated string access_scopes = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp updated_at = 10;
+}
+
+message CreateAccountRes {
+  Account account = 1;
+}
+
+message GetAccountReq {
+  int32 id = 1;
+}
+
+message GetAccountRes {
+  Account account = 1;
+}
+
+message GetCurrentAccountReq {
+}
+
+message GetCurrentAccountRes {
+  Account account = 1;
+}
+
+message PerformAccountsActionReq {
+  repeated int32 ids = 1;
+  AccountStatus status = 2;
+}
+
+message PerformAccountsActionRes {
+  repeated Account accounts = 1;
+}
+
+
+message UpdateAccountRes {
+  Account account = 1;
+}
+
+message UpdateCurrentUserReq {
+  string name = 1;
+  string email = 2;
+  string current_secret = 3;
+  string new_secret = 4;
+}
+
+message UpdateCurrentUserRes {
+  Account account = 1;
+}
+
+message AccountFilters {
+  AccountKind kind = 1;
+  string access_scope = 2;
+  google.protobuf.Timestamp updated_since = 3;
+}
+
+message ListAccountReq {
+  PageReq pagination = 1;
+  repeated SortField sorts = 2;
+  AccountFilters filters = 3;
+  string search = 4;
+}
+
+message ListAccountRes {
+  repeated Account data = 1;
+  PageRes pagination  = 2;
+}
+
+// Service accounts keypair management
+message ServiceAccountKey {
+  string id = 1;
+  // Only populated on create responses that generated a key
+  string private_key_der = 2;
+
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp expires_at = 4;
+}
+
+message CreateServiceAccountKeyReq {
+  int32 account_id = 1;
+}
+
+message CreateServiceAccountKeyRes {
+  ServiceAccountKey key = 1;
+}
+
+message DeleteServiceAccountKeyReq {
+  // Identifier of the key record
+  string id = 1;
+}
+
+message DeleteServiceAccountKeyRes {
+}
+
+message ListServiceAccountKeyReq {
+  int32 account_id = 1;
+  PageReq pagination = 2;
+}
+
+message ListServiceAccountKeyRes {
+  repeated ServiceAccountKey data = 1;
+  PageRes pagination  = 2;
+}
