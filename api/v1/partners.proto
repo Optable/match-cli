@@ -1,0 +1,144 @@
+syntax = "proto3";
+package v1;
+option go_package = "github.com/optable/match-cli/api/v1";
+
+import "common.proto";
+import "external.proto";
+
+import "google/protobuf/timestamp.proto";
+
+enum PartnerState {
+  PARTNER_STATE_UNKNOWN = 0;
+  // A connection request is/will be sent or has been sent to the parnter
+  PARTNER_STATE_SENT = 1;
+  // A connection request has been received from the partner
+  PARTNER_STATE_RECEIVED = 2;
+  // There is an active connection with that partner
+  PARTNER_STATE_CONNECTED = 3;
+  // This partner has been explicitely disconnected by the partner or by the sandbox
+  PARTNER_STATE_DISCONNECTED = 4;
+  // This partner has rejected the sandbox connection request or the sandbox has rejected the partner
+  PARTNER_STATE_REJECTED = 5;
+  // Some action couldn't be properly completed with the partner. error_msg should give more details.
+  PARTNER_STATE_ERROR = 6;
+}
+
+enum PartnerKind {
+  PARTNER_KIND_UNKNOWN = 0;
+  PARTNER_KIND_INTERNAL = 1;
+  PARTNER_KIND_EXTERNAL = 2;
+}
+
+// Partners can authenticate themselves either through hostname (sandbox) or public key
+message PublicKeyAuthentication {
+  string public_key = 1;
+}
+
+message HostnameAuthentication {
+  string hostname = 1;
+}
+
+// A partner is an external sandbox with which it is possible to match audiences
+message Partner {
+  int32 id = 1;
+  string name = 2;
+  // The hostname of the partner sandbox is the canonical identifier to authenticate
+  string hostname = 3 [deprecated=true];
+  // The icon to represent the partner in the UI
+  string icon_url = 4;
+  // A custom URL to use in order to initiate communication with the partner
+  string url = 5;
+  PartnerState state = 6;
+  // Optional error message associate with the ERROR state
+  string error_msg = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  // Slug for a partner, for authentication purposes
+  string slug = 10;
+  // Partner's way to authenticate themselves
+  oneof authentication_attrs {
+    PublicKeyAuthentication public_key_auth = 11;
+    HostnameAuthentication hostname_auth = 12;
+  }
+
+  PartnerKind kind = 13;
+}
+
+message LookupPartnerReq {
+  string http_origin = 1;
+}
+
+message LookupPartnerRes {
+  ExternalInfo info = 1;
+}
+
+message ConnectPartnerReq {
+  string name = 1;
+  string hostname = 2;
+  string icon_url = 3;
+  string url = 4;
+}
+
+message ConnectPartnerRes {
+  Partner partner = 1;
+}
+
+message ApprovePartnerReq {
+  int32 id = 1;
+}
+
+message RejectPartnerReq {
+  int32 id = 1;
+}
+
+message DisconnectPartnerReq {
+  int32 id = 1;
+}
+
+message PartnerFilters {
+  repeated PartnerState states = 1;
+  repeated PartnerKind kinds = 2;
+}
+
+message ListPartnerReq {
+  PageReq pagination = 1;
+  PartnerFilters filters = 2;
+  repeated SortField sorts = 3;
+  string search = 4;
+}
+
+message ListPartnerRes {
+  repeated Partner data = 1;
+  PageRes pagination  = 2;
+}
+
+message PartnersInitToken {
+  string slug = 1;
+  // URL to and external/api/info endpoint
+  string sandbox_info = 2;
+  string secret = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message CreateExternalInitTokenReq {
+  // Name of the (adhoc?) partner
+  string name = 1;
+}
+
+message CreateExternalInitTokenRes {
+  PartnersInitToken token = 1;
+}
+
+message RegisterExternalPartnerReq {
+  string public_key = 1;
+  string token = 2;
+}
+
+message GetInitTokenReq {
+  string slug = 1;
+}
+
+message GetInitTokenRes {
+  string token = 1;
+}

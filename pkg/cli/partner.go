@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	adminpb "optable-sandbox/pkg/proto/admin"
+	v1 "github.com/optable/match-cli/api/v1"
 
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -89,7 +89,7 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to marshal public key: %w", err)
 	}
 
-	err = client.RegisterPartner(cli.ctx, &adminpb.RegisterExternalPartnerReq{
+	err = client.RegisterPartner(cli.ctx, &v1.RegisterExternalPartnerReq{
 		PublicKey: base64.StdEncoding.EncodeToString(marshaledPublicKey),
 		Token:     p.Token,
 	})
@@ -106,13 +106,13 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 	return printJson(conf)
 }
 
-func decodeToken(token string) (*adminpb.PartnersInitToken, error) {
+func decodeToken(token string) (*v1.PartnersInitToken, error) {
 	json, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return nil, err
 	}
 
-	var message adminpb.PartnersInitToken
+	var message v1.PartnersInitToken
 	if err := protojson.Unmarshal(json, &message); err != nil {
 		return nil, err
 	}

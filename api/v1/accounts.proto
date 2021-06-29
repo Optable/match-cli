@@ -2,8 +2,9 @@ syntax = "proto3";
 package v1;
 option go_package = "github.com/optable/match-cli/api/v1";
 
-import "google/protobuf/timestamp.proto";
 import "common.proto";
+
+import "google/protobuf/timestamp.proto";
 
 enum AccountKind {
   ACCOUNT_KIND_UNKNOWN = 0;

@@ -3,6 +3,7 @@ package v1;
 option go_package = "github.com/optable/match-cli/api/v1";
 
 import "insights.proto";
+
 import "google/protobuf/timestamp.proto";
 
 message ExternalMatchRefreshOnce {

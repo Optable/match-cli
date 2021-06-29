@@ -14,9 +14,6 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"optable-sandbox/pkg/lib/auth"
-	adminpb "optable-sandbox/pkg/proto/admin"
-
-	"github.com/rs/zerolog"
 )
 
 type (
@@ -193,14 +190,6 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem string) (*tls.Co
 	}, nil
 }
 
-func info(ctx context.Context) *zerolog.Event {
-	return zerolog.Ctx(ctx).Info()
-}
-
-func debug(ctx context.Context) *zerolog.Event {
-	return zerolog.Ctx(ctx).Debug()
-}
-
 func pollRunMatch(ctx context.Context, partner *PartnerConfig, matchUUID string, cert *auth.EphemerealCertificate) (*v1.RunExternalMatchRes, error) {
 	matchResultUUID := ksuid.New().String()
 	info(ctx).Msgf("generated match result id %s", matchResultUUID)
@@ -247,14 +236,6 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 		debug(ctx).Msg("results not ready, sleeping for 5 seconds")
 		time.Sleep(5 * time.Second)
 	}
-}
-
-func withInfoLogger(ctx context.Context) context.Context {
-	logger := *zerolog.Ctx(ctx)
-	if logger.GetLevel() > zerolog.InfoLevel {
-		logger = logger.Level(zerolog.InfoLevel)
-	}
-	return logger.WithContext(ctx)
 }
 
 func (m *MatchRunCmd) Run(cli *CliContext) error {
@@ -311,7 +292,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to poll /match/get-result: %w", err)
 	}
 
-	if result.State == adminpb.ExternalMatchResultState_EXTERNAL_MATCH_RESULT_STATE_ERRORED {
+	if result.State == v1.ExternalMatchResultState_EXTERNAL_MATCH_RESULT_STATE_ERRORED {
 		return fmt.Errorf("got an errored state from /match/get-result: %s", result.ErrorMsg)
 	}
 

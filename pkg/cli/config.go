@@ -10,8 +10,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"optable-sandbox/pkg/client/admin"
-
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -93,10 +91,10 @@ func (partner *PartnerConfig) NewToken(expireAt time.Duration) (string, error) {
 	return tokStr, nil
 }
 
-func (partner *PartnerConfig) NewClient() (*admin.AdminRpcClient, error) {
+func (partner *PartnerConfig) NewClient() (*AdminRpcClient, error) {
 	token, err := partner.NewToken(time.Minute * 10)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create token: %w", err)
 	}
-	return admin.NewClient(partner.URL, admin.StaticTokenSource(token), nil), nil
+	return NewClient(partner.URL, StaticTokenSource(token), nil), nil
 }

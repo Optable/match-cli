@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"os"
 	"time"
 
@@ -34,4 +35,20 @@ func NewLogger(cliName string, verbosity int) *zerolog.Logger {
 		Str("cli", cliName).
 		Logger()
 	return &logger
+}
+
+func withInfoLogger(ctx context.Context) context.Context {
+	logger := *zerolog.Ctx(ctx)
+	if logger.GetLevel() > zerolog.InfoLevel {
+		logger = logger.Level(zerolog.InfoLevel)
+	}
+	return logger.WithContext(ctx)
+}
+
+func info(ctx context.Context) *zerolog.Event {
+	return zerolog.Ctx(ctx).Info()
+}
+
+func debug(ctx context.Context) *zerolog.Event {
+	return zerolog.Ctx(ctx).Debug()
 }

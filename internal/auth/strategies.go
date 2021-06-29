@@ -11,12 +11,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"optable-sandbox/pkg/service/admin/models"
-	"optable-sandbox/pkg/service/admin/protox"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"optable-sandbox/pkg/service/admin/protox"
+
+	"github.com/optable/match-cli/api/models"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/volatiletech/null/v8"

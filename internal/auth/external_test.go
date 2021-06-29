@@ -4,9 +4,10 @@ import (
 	"crypto/ecdsa"
 	"encoding/pem"
 	"errors"
-	"optable-sandbox/pkg/lib/crypt"
 	"testing"
 	"time"
+
+	"github.com/optable/match-cli/pkg/crypt"
 
 	"github.com/stretchr/testify/assert"
 )
