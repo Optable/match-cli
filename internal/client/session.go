@@ -1,4 +1,4 @@
-package cli
+package client
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	v1 "github.com/optable/match-cli/api/v1"
-	"github.com/optable/match-cli/pkg/auth"
+	"github.com/optable/match-cli/internal/auth"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"

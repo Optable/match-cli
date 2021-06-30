@@ -1,4 +1,4 @@
-package cli
+package client
 
 import (
 	"bytes"
@@ -19,7 +19,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const maxPageSize = 100
@@ -179,9 +178,4 @@ func (c *AdminRpcClient) Do(ctx context.Context, method string, req, res proto.M
 	}
 
 	return proto.Unmarshal(body, res)
-}
-
-func (c *AdminRpcClient) RegisterPartner(ctx context.Context, req *v1.RegisterExternalPartnerReq) error {
-	res := &emptypb.Empty{}
-	return c.Do(ctx, "/partner/register", req, res)
 }

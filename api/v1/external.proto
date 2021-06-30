@@ -3,6 +3,7 @@ package v1;
 option go_package = "github.com/optable/match-cli/api/v1";
 
 import "insights.proto";
+import "identifier.proto";
 
 import "google/protobuf/timestamp.proto";
 
@@ -45,6 +46,9 @@ message CreateExternalMatchReq {
     ExternalMatchRefreshDaily daily = 5;
     ExternalMatchRefreshAdhoc adhoc = 6;
   }
+
+  // Subset of IdKind to use for matching. If empty, all IDs elligible for matching will be used.
+  repeated IdKind identifiers_filter = 17;
 }
 
 message CreateExternalMatchRes {
@@ -83,6 +87,7 @@ message RunExternalMatchRes {
   string match_result_uuid = 1;
   string endpoint = 2;
   string server_certificate_pem = 3;
+  string error_msg = 4;
 }
 
 message GetExternalMatchResultReq {
@@ -118,5 +123,17 @@ message PauseExternalMatchReq {
 }
 
 message ResumeExternalMatchReq {
+  string match_uuid = 1;
+}
+
+message LockExternalMatchReq {
+  string match_uuid = 1;
+}
+
+message UnlockExternalMatchReq {
+  string match_uuid = 1;
+}
+
+message ArchiveExternalMatchReq {
   string match_uuid = 1;
 }

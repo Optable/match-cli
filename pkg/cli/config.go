@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/optable/match-cli/internal/client"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -91,10 +93,10 @@ func (partner *PartnerConfig) NewToken(expireAt time.Duration) (string, error) {
 	return tokStr, nil
 }
 
-func (partner *PartnerConfig) NewClient() (*AdminRpcClient, error) {
+func (partner *PartnerConfig) NewClient() (*client.AdminRpcClient, error) {
 	token, err := partner.NewToken(time.Minute * 10)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create token: %w", err)
 	}
-	return NewClient(partner.URL, StaticTokenSource(token), nil), nil
+	return client.NewClient(partner.URL, client.StaticTokenSource(token), nil), nil
 }

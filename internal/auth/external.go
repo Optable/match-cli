@@ -2,17 +2,13 @@ package auth
 
 import (
 	"crypto/ecdsa"
-	"crypto/rand"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"net"
 	"time"
-
-	"github.com/optable/match-cli/api/models"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -160,20 +156,4 @@ func createExternalToken(slug string, cert *pem.Block, key *ecdsa.PrivateKey, no
 	}
 
 	return tokStr, nil
-}
-
-func CreateInitialExternalToken(sandboxInfo string, slug string, validFrom time.Time, validUntil time.Time) (*models.PartnersInitToken, error) {
-	secretBytes := make([]byte, 256)
-	if _, err := rand.Read(secretBytes); err != nil {
-		return nil, err
-	}
-	secret := hex.EncodeToString(secretBytes)
-	token := &models.PartnersInitToken{
-		Slug:        slug,
-		SandboxInfo: sandboxInfo,
-		Secret:      secret,
-		CreatedAt:   validFrom,
-		ExpiresAt:   validUntil,
-	}
-	return token, nil
 }

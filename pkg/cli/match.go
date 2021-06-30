@@ -7,13 +7,13 @@ import (
 	"sort"
 	"time"
 
-	//matchclient "github.com/optable/optable-match/protocol-rpc/client"
-	//"github.com/optable/optable-match/util"
 	v1 "github.com/optable/match-cli/api/v1"
+	"github.com/optable/match-cli/internal/auth"
+	matchclient "github.com/optable/match-cli/internal/client"
+	"github.com/optable/match-cli/internal/util"
+
 	"github.com/segmentio/ksuid"
 	"google.golang.org/protobuf/proto"
-
-	"optable-sandbox/pkg/lib/auth"
 )
 
 type (
