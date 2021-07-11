@@ -1,29 +1,20 @@
 package auth
 
 import (
-	"net/http"
+	"github.com/dgrijalva/jwt-go"
 )
 
-type AuthStrategy interface {
-	Authenticate(req *http.Request) (interface{}, error)
-}
+const UserAccessCookie = "OPTABLE_ADMIN_ACCESS"
 
-type AuthStrategyFn func(req *http.Request) (interface{}, error)
-
-func (fn AuthStrategyFn) Authenticate(req *http.Request) (interface{}, error) {
-	return fn(req)
-}
-
-func NewChainedAuthStrategy(strategies ...AuthStrategy) AuthStrategy {
-	return AuthStrategyFn(func(req *http.Request) (resource interface{}, err error) {
-		// Try all strategies until we find a successful one
-		for _, strategy := range strategies {
-			resource, err = strategy.Authenticate(req)
-			if err == nil {
-				return resource, nil
-			}
-		}
-
-		return nil, err
-	})
+type SignedRequestClaims struct {
+	jwt.StandardClaims
+	// Follow draft suggestion for signed requests
+	// https://tools.ietf.org/html/draft-richanna-http-jwt-signature-00#section-3.1
+	// b field includes a url base64 encoded SHA256 checksum of the request body
+	B string `json:"b"`
+	// ts field includes a unix timestamp of when the request was generated
+	// It's server responsibility to evaluate staleness
+	// It's preferable to exp claim which leave too much responsibility on the client.
+	// It's there to mitigate replay attacks
+	TS int64
 }
