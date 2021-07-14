@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -37,7 +38,7 @@ type (
 		InitTimeout time.Duration `default:"1m" help:"Timeout for the initialization of the match"`
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
-		File        string        `arg:"" required:"" help:"File to match"`
+		File        *os.File      `arg:"" required:"" help:"File to match"`
 	}
 
 	MatchCmd struct {
@@ -242,6 +243,7 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 }
 
 func (m *MatchRunCmd) Run(cli *CliContext) error {
+	defer m.File.Close()
 	ctx := withInfoLogger(cli.ctx)
 
 	ctx, cancel := context.WithTimeout(ctx, m.RunTimeout)
@@ -250,9 +252,9 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	n, records, err := util.GenInputChannel(m.File)
 	if err != nil {
-		return fmt.Errorf("failed to load record file %s : %w", m.File, err)
+		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}
-	info(ctx).Msgf("loaded %d records from %s", n, m.File)
+	info(ctx).Msgf("loaded %d records from %s", n, m.File.Name())
 
 	partner := cli.config.findPartner(m.Partner)
 	if partner == nil {

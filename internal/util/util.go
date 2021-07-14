@@ -77,32 +77,29 @@ func WriteOutput(output []string, path string) error {
 }
 
 //Read identifiers from a file to a channel
-func GenInputChannel(path string) (int64, <-chan []byte, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return 0, nil, err
-	}
-	defer f.Close()
-
+func GenInputChannel(f *os.File) (int64, <-chan []byte, error) {
 	n, err := count(f)
 	if err != nil {
 		return n, nil, err
 	}
+	log.Printf("Loaded %d lines", n)
+
+	// rewind
+	f.Seek(0, io.SeekStart)
+
 	// make the output channel
 	identifiers := make(chan []byte)
 
 	// wrap f in a bufio reader
 	src := bufio.NewScanner(f)
-	src.Buffer(make([]byte, 64*1024), 64*1024)
-
-	// iterate while EOF is not reached
 	go func() {
-		for i := int64(1); i < n; i++ {
+		defer close(identifiers)
+		for i := int64(0); i < n; i++ {
 			if !src.Scan() {
 				if src.Err() != nil {
-					log.Printf("error reading identifiers: %v", src.Err())
+					log.Printf("error reading %d^th identifiers: %v", i, src.Err())
 				}
-				return
+				break
 			}
 
 			identifier := src.Bytes()
@@ -122,6 +119,7 @@ func count(r io.Reader) (int64, error) {
 	for scanner.Scan() {
 		n++
 	}
+
 	if err := scanner.Err(); err != nil {
 		return n, err
 	}
