@@ -10,7 +10,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -72,4 +74,57 @@ func WriteOutput(output []string, path string) error {
 	}
 
 	return w.Flush()
+}
+
+//Read identifiers from a file to a channel
+func GenInputChannel(path string) (int64, <-chan []byte, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return 0, nil, err
+	}
+	defer f.Close()
+
+	n, err := count(f)
+	if err != nil {
+		return n, nil, err
+	}
+	// make the output channel
+	identifiers := make(chan []byte)
+
+	// wrap f in a bufio reader
+	src := bufio.NewScanner(f)
+	src.Buffer(make([]byte, 64*1024), 64*1024)
+
+	// iterate while EOF is not reached
+	go func() {
+		for i := int64(1); i < n; i++ {
+			if !src.Scan() {
+				if src.Err() != nil {
+					log.Printf("error reading identifiers: %v", src.Err())
+				}
+				return
+			}
+
+			identifier := src.Bytes()
+			if len(identifier) != 0 {
+				identifiers <- identifier
+			}
+		}
+	}()
+
+	return n, identifiers, nil
+}
+
+//count returns number of lines in file
+func count(r io.Reader) (int64, error) {
+	var n int64
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		n++
+	}
+	if err := scanner.Err(); err != nil {
+		return n, err
+	}
+
+	return n, nil
 }
