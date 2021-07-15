@@ -12,8 +12,11 @@ import (
 
 func RunDHPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
 	c, err := connect(ctx, endpoint, creds)
+	if err != nil {
+		return err
+	}
 
-	sender, err := psi.NewSender(psi.NPSI, c)
+	sender, err := psi.NewSender(psi.DHPSI, c)
 	if err != nil {
 		return fmt.Errorf("Failed creating PSI sender %w", err)
 	}
