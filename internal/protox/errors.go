@@ -1,8 +1,6 @@
 package protox
 
 import (
-	"fmt"
-
 	v1 "github.com/optable/match-cli/api/v1"
 )
 
@@ -27,14 +25,4 @@ func NewNotFoundError(err error) *Error {
 		Res: &v1.Error{Code: v1.Status_STATUS_NOT_FOUND, Message: err.Error()},
 		Err: err,
 	}
-}
-
-func toStringMap(params map[string]interface{}) map[string]string {
-	result := make(map[string]string, len(params))
-	for key, param := range params {
-		if str, ok := param.(fmt.Stringer); ok {
-			result[key] = str.String()
-		}
-	}
-	return result
 }

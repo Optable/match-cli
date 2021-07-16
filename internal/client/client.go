@@ -158,12 +158,12 @@ func (c *AdminRpcClient) Do(ctx context.Context, method string, req, res proto.M
 		res := &v1.Error{}
 
 		respErr := fmt.Errorf(
-			"Unexpected status code for %s %s: %s",
+			"unexpected status code for %s %s: %s",
 			httpReqMethod, c.path(method), httpResp.Status,
 		)
 
 		if err := proto.Unmarshal(body, res); err != nil {
-			return fmt.Errorf("Error without body: %w", respErr)
+			return fmt.Errorf("error without body: %w", respErr)
 		}
 
 		errString, err := protojson.Marshal(res)
