@@ -36,13 +36,13 @@ type (
 		InitTimeout time.Duration `default:"1m" help:"Timeout for the initialization of the match"`
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
-		File        string        `arg:"" required:"" help:"File to match"`
+		File        string        `arg:"" required:"" help:"Path to input identifier file"`
 	}
 
 	MatchCmd struct {
 		Create     MatchCreateCmd     `cmd:"" help:"Create a match"`
 		List       MatchListCmd       `cmd:"" help:"List matches"`
-		GetResults MatchGetResultsCmd `cmd:"" help:"Get a match results"`
+		GetResults MatchGetResultsCmd `cmd:"" help:"Get match results"`
 		Run        MatchRunCmd        `cmd:"" help:"Run a match"`
 	}
 )
@@ -247,9 +247,9 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	records, err := util.ReadInput(m.File)
 	if err != nil {
-		return fmt.Errorf("failed to load record file %s : %w", m.File, err)
+		return fmt.Errorf("failed to load identifier file %s : %w", m.File, err)
 	}
-	info(ctx).Msgf("loaded %d records from %s", len(records), m.File)
+	info(ctx).Msgf("loaded %d identifiers from %s", len(records), m.File)
 
 	partner := cli.config.findPartner(m.Partner)
 	if partner == nil {
@@ -275,16 +275,16 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed while polling run/match: %w", err)
 	}
 
-	info(ctx).Msgf("running dhpsi protocol on %s", runMatchRes.Endpoint)
+	info(ctx).Msgf("running DHPSI protocol on %s", runMatchRes.Endpoint)
 	tlsConfig, err := getTLSConfig(ephemerealCertificate, runMatchRes.ServerCertificatePem)
 	if err != nil {
-		return fmt.Errorf("failed to create TLS config for dhpsi protocol: %w", err)
+		return fmt.Errorf("failed to create TLS config for DHPSI protocol: %w", err)
 	}
 	err = matchclient.RunDHPSI(ctx, runMatchRes.Endpoint, tlsConfig, records)
 	if err != nil {
 		return fmt.Errorf("failed to run DHPSI: %w", err)
 	}
-	info(ctx).Msg("successfully completed dhpsi protocol")
+	info(ctx).Msg("successfully completed DHPSI protocol")
 
 	info(ctx).Msgf("polling /match/get-result for results")
 	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUuid)

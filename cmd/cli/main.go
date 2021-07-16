@@ -7,12 +7,12 @@ import (
 )
 
 const description = `
-Optable Match CLI interface.
+Optable Match CLI tool.
 `
 
 func main() {
 	var c cli.Cli
-	kongCtx := kong.Parse(&c, kong.Description(description))
+	kongCtx := kong.Parse(&c, kong.Description(description), kong.UsageOnError())
 
 	cliCtx, err := c.NewContext()
 	kongCtx.FatalIfErrorf(err)

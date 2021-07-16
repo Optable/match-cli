@@ -21,4 +21,6 @@ $ optable-match-cli match run <partner-name> <match_uuid> <path-to-file>
 ```
 Upon successful execution of the match, the size of the intersected identifiers will be returned in a json formatted string.
 
-For each subcommands `partner` and `match`, you can use the flag `--help` to see detailed help messages. Full documentation is available [here](https://app.gitbook.com/@optable/s/optable-documentation/guides/match-cli).
+For each subcommands `partner` and `match`, you can use the flag `--help` to see detailed help messages.
+
+Full documentation is available [here](https://app.gitbook.com/@optable/s/optable-documentation/guides/match-cli).
