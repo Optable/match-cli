@@ -21,7 +21,7 @@ func NewTLS(caFile string, certFile string, keyFile string, serverName string) (
 	}
 	cp := x509.NewCertPool()
 	if !cp.AppendCertsFromPEM(ca) {
-		return nil, fmt.Errorf("Failed to parse ca file")
+		return nil, fmt.Errorf("failed to parse ca file")
 	}
 
 	cert, err := tls.LoadX509KeyPair(certFile, keyFile)

@@ -41,5 +41,5 @@ func CreateUserSession(ctx context.Context, authAPIURL string, req *v1.CreateSes
 		}
 	}
 
-	return nil, errors.New("Couldn't read access token from sign in response")
+	return nil, errors.New("couldn't read access token from sign in response")
 }
