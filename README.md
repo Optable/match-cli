@@ -14,10 +14,10 @@ After successful partnering, a match can be created.
 ```bash
 $ optable-match-cli match create <partner-name> <match-name>
 ```
-On success, a `match-uuid` will be printed, and we will use this token to perform a match.
+On success, a `match_uuid` will be printed, and we will use this token to perform a match.
 
 ```bash
-$ optable-match-cli match run <partner-name> <match-uuid> <path-to-file>
+$ optable-match-cli match run <partner-name> <match_uuid> <path-to-file>
 ```
 Upon successful execution of the match, the size of the intersected identifiers will be returned in a json formatted string.
 
