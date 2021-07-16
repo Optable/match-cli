@@ -4,22 +4,34 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"log"
 	"net"
 	"time"
 
 	"github.com/optable/match/pkg/psi"
 )
 
-func RunDHPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
+func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
 	c, err := connect(ctx, endpoint, creds)
 	if err != nil {
 		return err
 	}
+	log.Printf("Connected to partner")
 
-	sender, err := psi.NewSender(psi.DHPSI, c)
+	// protocol negotiation step
+	protocol, err := negotiateSenderProtocol(c)
+	if err != nil {
+		return err
+	}
+	log.Printf("Received protocol: %d", protocol)
+
+	sender, err := psi.NewSender(protocol, c)
 	if err != nil {
 		return fmt.Errorf("Failed creating PSI sender %w", err)
 	}
+
+	log.Printf("Created sender. Sender started PSI")
 
 	return sender.Send(ctx, n, in)
 }
@@ -59,4 +71,15 @@ func connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 
 		return c, nil
 	}
+}
+
+// will call this in a separate lib
+// negotiateSenderProtocol receives server supported protocols and selects one.
+func negotiateSenderProtocol(rw io.ReadWriter) (int, error) {
+	protocol := make([]byte, 1)
+	if n, err := rw.Read(protocol); err != nil || n != len(protocol) {
+		return n, fmt.Errorf("Sender failed to receive PSI protocol negotiation message, got: %v, err: %w", protocol, err)
+	}
+
+	return int(protocol[0]), nil
 }
