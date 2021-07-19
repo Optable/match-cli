@@ -8,7 +8,7 @@ import (
 	"net"
 	"time"
 
-	match "optable-sandbox/pkg/lib/match-header"
+	match "github.com/optable-sandbox/pkg/lib/match-header"
 
 	"github.com/optable/match/pkg/psi"
 	"github.com/rs/zerolog"
