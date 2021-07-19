@@ -8,6 +8,8 @@ import (
 	"net"
 	"time"
 
+	match "optable-sandbox/pkg/lib/match-header"
+
 	"github.com/optable/match/pkg/psi"
 	"github.com/rs/zerolog"
 )
@@ -20,7 +22,7 @@ func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in
 	zerolog.Ctx(ctx).Info().Msgf("connected to partner")
 
 	// protocol negotiation step
-	protocol, err := negotiateSenderProtocol(c)
+	protocol, err := match.NegotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}

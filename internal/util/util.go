@@ -92,25 +92,21 @@ func GenInputChannel(ctx context.Context, f *os.File) (int64, <-chan []byte, err
 	identifiers := make(chan []byte)
 
 	// wrap f in a bufio reader
-	src := bufio.NewScanner(f)
+	src := bufio.NewReader(f)
 	go func() {
 		defer close(identifiers)
-		c := 0
 		for i := int64(0); i < n; i++ {
-			if !src.Scan() {
-				if src.Err() != nil {
-					zerolog.Ctx(ctx).Error().Err(src.Err()).Msgf("error reading %d^th identifiers", i)
-				}
-				break
-			}
-
-			identifier := src.Bytes()
+			identifier, err := SafeReadLine(src)
 			if len(identifier) != 0 {
 				identifiers <- identifier
-				c++
+			}
+			if err != nil {
+				if err != io.EOF {
+					zerolog.Ctx(ctx).Error().Err(err).Msg("error reading identifiers: %v")
+				}
+				return
 			}
 		}
-		zerolog.Ctx(ctx).Info().Msgf("Sent %d identifier to the channel.", c)
 	}()
 
 	return n, identifiers, nil
@@ -129,4 +125,14 @@ func count(r io.Reader) (int64, error) {
 	}
 
 	return n, nil
+}
+
+func SafeReadLine(r *bufio.Reader) (line []byte, err error) {
+	// read until newline
+	line, err = r.ReadBytes('\n')
+	if len(line) > 1 {
+		// strip the \n
+		line = line[:len(line)-1]
+	}
+	return
 }
