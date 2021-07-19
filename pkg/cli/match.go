@@ -286,7 +286,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create TLS config for dhpsi protocol: %w", err)
 	}
 
-	if err = matchclient.RunPSI(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
+	if err = matchclient.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
 		return fmt.Errorf("failed to run DHPSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed dhpsi protocol")

@@ -94,7 +94,7 @@ func (c *AdminRpcClient) ConnectPartner(ctx context.Context, req *v1.ExternalInf
 func (c *AdminRpcClient) NotifyPartner(ctx context.Context, notification PartnerStateNotification) error {
 	method := partnerStateNotifyMethod(notification)
 	if method == "" {
-		return fmt.Errorf("Unsupported partner state notification \"%s\"", notification)
+		return fmt.Errorf("unsupported partner state notification \"%s\"", notification)
 	}
 	req := &emptypb.Empty{}
 	res := &emptypb.Empty{}

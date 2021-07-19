@@ -4,17 +4,16 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"io"
 	"net"
 	"time"
 
-	match "github.com/optable-sandbox/pkg/lib/match-header"
-
+	match_header "github.com/optable/match-cli/pkg/match-header"
 	"github.com/optable/match/pkg/psi"
+
 	"github.com/rs/zerolog"
 )
 
-func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
+func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
 	c, err := connect(ctx, endpoint, creds)
 	if err != nil {
 		return err
@@ -22,7 +21,7 @@ func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in
 	zerolog.Ctx(ctx).Info().Msgf("connected to partner")
 
 	// protocol negotiation step
-	protocol, err := match.NegotiateSenderProtocol(c)
+	protocol, err := match_header.NegotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}
@@ -30,7 +29,7 @@ func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in
 
 	sender, err := psi.NewSender(protocol, c)
 	if err != nil {
-		return fmt.Errorf("Failed creating PSI sender %w", err)
+		return fmt.Errorf("failed creating PSI sender %w", err)
 	}
 
 	zerolog.Ctx(ctx).Info().Msgf("created sender to start PSI")
@@ -42,7 +41,7 @@ func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in
 func connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn, error) {
 	raddr, err := net.ResolveTCPAddr("tcp", endpoint)
 	if err != nil {
-		return nil, fmt.Errorf("Failed resolving TCP address of %s: %w", endpoint, err)
+		return nil, fmt.Errorf("failed resolving TCP address of %s: %w", endpoint, err)
 	}
 
 	timeout := time.NewTimer(time.Minute)
@@ -51,18 +50,18 @@ func connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-timeout.C:
-			return nil, fmt.Errorf("Connection time exceeded.")
+			return nil, fmt.Errorf("connection time exceeded")
 		default:
 			// try connection
 		}
 
 		conn, err := net.DialTCP("tcp", nil, raddr)
 		if err != nil {
-			return nil, fmt.Errorf("Failed to dial %s: %w", endpoint, err)
+			return nil, fmt.Errorf("failed to dial %s: %w", endpoint, err)
 		}
 		// enable nagle
 		if err := conn.SetNoDelay(false); err != nil {
-			return nil, fmt.Errorf("Cannot enable nagle: %w", err)
+			return nil, fmt.Errorf("cannot enable nagle: %w", err)
 		}
 
 		c := tls.Client(conn, cred)
@@ -73,14 +72,4 @@ func connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 
 		return c, nil
 	}
-}
-
-// negotiateSenderProtocol receives server supported protocols and selects one.
-func negotiateSenderProtocol(rw io.ReadWriter) (int, error) {
-	protocol := make([]byte, 1)
-	if n, err := rw.Read(protocol); err != nil || n != len(protocol) {
-		return n, fmt.Errorf("Sender failed to receive PSI protocol negotiation message, got: %v, err: %w", protocol, err)
-	}
-
-	return int(protocol[0]), nil
 }
