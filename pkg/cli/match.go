@@ -250,7 +250,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	defer cancel()
 	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchID, m.RunTimeout)
 
-	n, records, err := util.GenInputChannel(m.File)
+	n, records, err := util.GenInputChannel(ctx, m.File)
 	if err != nil {
 		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}

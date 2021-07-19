@@ -7,13 +7,15 @@ package util
 
 import (
 	"bufio"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
+
+	"github.com/rs/zerolog"
 )
 
 func NewTLS(caFile string, certFile string, keyFile string, serverName string) (*tls.Config, error) {
@@ -77,12 +79,11 @@ func WriteOutput(output []string, path string) error {
 }
 
 //Read identifiers from a file to a channel
-func GenInputChannel(f *os.File) (int64, <-chan []byte, error) {
+func GenInputChannel(ctx context.Context, f *os.File) (int64, <-chan []byte, error) {
 	n, err := count(f)
 	if err != nil {
 		return n, nil, err
 	}
-	log.Printf("Loaded %d lines", n)
 
 	// rewind
 	f.Seek(0, io.SeekStart)
@@ -94,10 +95,11 @@ func GenInputChannel(f *os.File) (int64, <-chan []byte, error) {
 	src := bufio.NewScanner(f)
 	go func() {
 		defer close(identifiers)
+		c := 0
 		for i := int64(0); i < n; i++ {
 			if !src.Scan() {
 				if src.Err() != nil {
-					log.Printf("error reading %d^th identifiers: %v", i, src.Err())
+					zerolog.Ctx(ctx).Error().Err(src.Err()).Msgf("error reading %d^th identifiers", i)
 				}
 				break
 			}
@@ -105,8 +107,10 @@ func GenInputChannel(f *os.File) (int64, <-chan []byte, error) {
 			identifier := src.Bytes()
 			if len(identifier) != 0 {
 				identifiers <- identifier
+				c++
 			}
 		}
+		zerolog.Ctx(ctx).Info().Msgf("Sent %d identifier to the channel.", c)
 	}()
 
 	return n, identifiers, nil
