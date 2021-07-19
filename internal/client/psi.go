@@ -5,11 +5,11 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"time"
 
 	"github.com/optable/match/pkg/psi"
+	"github.com/rs/zerolog"
 )
 
 func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
@@ -17,21 +17,21 @@ func RunPSI(ctx context.Context, endpoint string, creds *tls.Config, n int64, in
 	if err != nil {
 		return err
 	}
-	log.Printf("Connected to partner")
+	zerolog.Ctx(ctx).Info().Msgf("connected to partner")
 
 	// protocol negotiation step
 	protocol, err := negotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}
-	log.Printf("Received protocol: %d", protocol)
+	zerolog.Ctx(ctx).Info().Msgf("received protocol: %d", protocol)
 
 	sender, err := psi.NewSender(protocol, c)
 	if err != nil {
 		return fmt.Errorf("Failed creating PSI sender %w", err)
 	}
 
-	log.Printf("Created sender. Sender started PSI")
+	zerolog.Ctx(ctx).Info().Msgf("created sender to start PSI")
 
 	return sender.Send(ctx, n, in)
 }
@@ -73,7 +73,6 @@ func connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 	}
 }
 
-// will call this in a separate lib
 // negotiateSenderProtocol receives server supported protocols and selects one.
 func negotiateSenderProtocol(rw io.ReadWriter) (int, error) {
 	protocol := make([]byte, 1)
