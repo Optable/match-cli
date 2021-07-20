@@ -10,7 +10,7 @@ import (
 
 const network = "tcp"
 
-// connect establish a tls connection to the endpoint with nagle enabled.
+// Connect establish a tls connection to the endpoint with nagle enabled.
 func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn, error) {
 	raddr, err := net.ResolveTCPAddr(network, endpoint)
 	if err != nil {
@@ -47,7 +47,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 	}
 }
 
-// serve listens to host and returns a nagle enabled tls connection
+// Listen listens to a tcp connection to host and returns a nagle enabled tls connection
 func Listen(host string, cred *tls.Config) (*tls.Conn, error) {
 	laddr, err := net.ResolveTCPAddr(network, host)
 	if err != nil {

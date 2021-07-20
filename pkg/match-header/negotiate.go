@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-// NegotiateSenderProtocol receives server supported protocols and selects one.
+// NegotiateSenderProtocol receives a list of receiver supported PSI protocol and returns the selected one.
 func NegotiateSenderProtocol(rw io.ReadWriter) (int, error) {
 	protocol := make([]byte, 1)
 	if n, err := rw.Read(protocol); err != nil || n != len(protocol) {
@@ -15,7 +15,7 @@ func NegotiateSenderProtocol(rw io.ReadWriter) (int, error) {
 	return int(protocol[0]), nil
 }
 
-// NegotiateReceiverProtocol sends server supported protocols in order of preference and returns the agreed one.
+// NegotiateReceiverProtocol sends a list of supported PSI protocol with the sender and returns the selected one from the sender.
 func NegotiateReceiverProtocol(rw io.ReadWriter, protocols []uint8) (int, error) {
 	protocolRes := []byte{protocols[0]}
 	if n, err := rw.Write(protocolRes); err != nil || n != len(protocolRes) {
