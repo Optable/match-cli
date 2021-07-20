@@ -280,16 +280,16 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed while polling run/match: %w", err)
 	}
 
-	info(ctx).Msgf("running dhpsi protocol on %s", runMatchRes.Endpoint)
+	info(ctx).Msgf("running PSI on %s", runMatchRes.Endpoint)
 	tlsConfig, err := getTLSConfig(ephemerealCertificate, runMatchRes.ServerCertificatePem, runMatchRes.Endpoint)
 	if err != nil {
-		return fmt.Errorf("failed to create TLS config for DHPSI protocol: %w", err)
+		return fmt.Errorf("failed to create TLS config for PSI: %w", err)
 	}
 
 	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
-		return fmt.Errorf("failed to run DHPSI: %w", err)
+		return fmt.Errorf("failed to run PSI: %w", err)
 	}
-	info(ctx).Msg("successfully completed DHPSI protocol")
+	info(ctx).Msg("successfully completed PSI")
 
 	info(ctx).Msgf("polling /match/get-result for results")
 	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUuid)

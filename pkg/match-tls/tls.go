@@ -17,18 +17,19 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 		return nil, fmt.Errorf("failed resolving TCP address of %s: %w", endpoint, err)
 	}
 
+	// maximum time for retrying tls connection.
 	timeout := time.NewTimer(time.Minute)
 	for {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
 		case <-timeout.C:
-			return nil, fmt.Errorf("connection time exceeded")
+			return nil, fmt.Errorf("TLS connection time exceeded")
 		default:
-			// try connection
+			// retry connection
 		}
 
-		conn, err := net.DialTCP("tcp", nil, raddr)
+		conn, err := net.DialTCP(network, nil, raddr)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial %s: %w", endpoint, err)
 		}
@@ -39,6 +40,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 
 		c := tls.Client(conn, cred)
 		if err := c.Handshake(); err != nil {
+			// wait 1 second and retry
 			time.Sleep(time.Second)
 			continue
 		}
@@ -70,7 +72,7 @@ func Listen(host string, cred *tls.Config) (*tls.Conn, error) {
 
 	c := tls.Server(conn, cred)
 	if err := c.Handshake(); err != nil {
-		return nil, fmt.Errorf("server: handshake failed: %w", err)
+		return nil, fmt.Errorf("server: TLS handshake failed: %w", err)
 	}
 
 	return c, nil
