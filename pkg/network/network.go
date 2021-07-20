@@ -1,4 +1,4 @@
-package match_network
+package network
 
 import (
 	"context"

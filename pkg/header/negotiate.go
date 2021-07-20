@@ -1,4 +1,4 @@
-package match_header
+package header
 
 import (
 	"fmt"
