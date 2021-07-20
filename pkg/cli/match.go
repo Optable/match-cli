@@ -36,7 +36,7 @@ type (
 	MatchRunCmd struct {
 		Partner     string        `arg:"" required:"" help:"Name of the partner"`
 		InitTimeout time.Duration `default:"1m" help:"Timeout for the initialization of the match"`
-		RunTimeout  time.Duration `default:"1h" help:"Timeout for the match operation"`
+		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
 	}
@@ -238,7 +238,7 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 			return res.MatchResult, nil
 		}
 		debug(ctx).Msg("results not ready, sleeping for 5 seconds")
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 }
 
