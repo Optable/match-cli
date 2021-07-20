@@ -11,8 +11,8 @@ import (
 
 	v1 "github.com/optable/match-cli/api/v1"
 	"github.com/optable/match-cli/internal/auth"
-	matchclient "github.com/optable/match-cli/internal/client"
 	"github.com/optable/match-cli/internal/util"
+	"github.com/optable/match-cli/pkg/match"
 
 	"github.com/segmentio/ksuid"
 	"google.golang.org/protobuf/proto"
@@ -286,7 +286,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create TLS config for dhpsi protocol: %w", err)
 	}
 
-	if err = matchclient.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
+	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
 		return fmt.Errorf("failed to run DHPSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed dhpsi protocol")
