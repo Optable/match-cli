@@ -5,8 +5,8 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	match_header "github.com/optable/match-cli/pkg/match-header"
-	match_tls "github.com/optable/match-cli/pkg/match-tls"
+	header "github.com/optable/match-cli/pkg/header"
+	network "github.com/optable/match-cli/pkg/network"
 	"github.com/optable/match/pkg/psi"
 
 	"github.com/rs/zerolog"
@@ -17,14 +17,14 @@ import (
 // instantiate and act as a sender in the specified PSI protocol,
 // and returns any error encountered during the match.
 func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
-	c, err := match_tls.Connect(ctx, endpoint, creds)
+	c, err := network.Connect(ctx, endpoint, creds)
 	if err != nil {
 		return err
 	}
 	zerolog.Ctx(ctx).Info().Msgf("connected to partner")
 
 	// protocol negotiation step
-	protocol, err := match_header.NegotiateSenderProtocol(c)
+	protocol, err := header.NegotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}
@@ -46,14 +46,14 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 // and returns the intersected identifiers or any errors encountered
 // during the match.
 func Receive(ctx context.Context, host string, cred *tls.Config, inputLen int64, identifiers <-chan []byte, protocols []uint8) ([][]byte, error) {
-	c, err := match_tls.Listen(host, cred)
+	c, err := network.Listen(host, cred)
 	if err != nil {
 		return nil, err
 	}
 	defer c.Close()
 
 	// protocol negatiation step
-	selected, err := match_header.NegotiateReceiverProtocol(c, protocols)
+	selected, err := header.NegotiateReceiverProtocol(c, protocols)
 	if err != nil {
 		return nil, err
 	}
