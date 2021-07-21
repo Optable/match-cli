@@ -242,6 +242,8 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 	}
 }
 
+// Run authenticates with the partner and runs the PSI match attempt.
+// The result of the match is printed on success.
 func (m *MatchRunCmd) Run(cli *CliContext) error {
 	defer m.File.Close()
 	ctx := withInfoLogger(cli.ctx)
