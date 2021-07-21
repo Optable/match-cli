@@ -44,7 +44,7 @@ type (
 	MatchCmd struct {
 		Create     MatchCreateCmd     `cmd:"" help:"Create a match"`
 		List       MatchListCmd       `cmd:"" help:"List matches"`
-		GetResults MatchGetResultsCmd `cmd:"" help:"Get a match results"`
+		GetResults MatchGetResultsCmd `cmd:"" help:"Get match results"`
 		Run        MatchRunCmd        `cmd:"" help:"Run a match"`
 	}
 )
@@ -242,6 +242,8 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 	}
 }
 
+// Run authenticates with the partner and runs the PSI match attempt.
+// The result of the match is printed on success.
 func (m *MatchRunCmd) Run(cli *CliContext) error {
 	defer m.File.Close()
 	ctx := withInfoLogger(cli.ctx)
@@ -280,16 +282,16 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed while polling run/match: %w", err)
 	}
 
-	info(ctx).Msgf("running dhpsi protocol on %s", runMatchRes.Endpoint)
+	info(ctx).Msgf("running PSI on %s", runMatchRes.Endpoint)
 	tlsConfig, err := getTLSConfig(ephemerealCertificate, runMatchRes.ServerCertificatePem, runMatchRes.Endpoint)
 	if err != nil {
-		return fmt.Errorf("failed to create TLS config for dhpsi protocol: %w", err)
+		return fmt.Errorf("failed to create TLS config for PSI: %w", err)
 	}
 
 	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
-		return fmt.Errorf("failed to run DHPSI: %w", err)
+		return fmt.Errorf("failed to run PSI: %w", err)
 	}
-	info(ctx).Msg("successfully completed dhpsi protocol")
+	info(ctx).Msg("successfully completed PSI")
 
 	info(ctx).Msgf("polling /match/get-result for results")
 	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUuid)

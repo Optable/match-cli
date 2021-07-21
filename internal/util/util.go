@@ -1,8 +1,3 @@
-/*
-Created on Feb 24, 2021
-
-@author: Akshaya Mani, Optable Inc.
-*/
 package util
 
 import (

@@ -15,7 +15,7 @@ type Cli struct {
 
 func (c *Cli) NewContext() (*CliContext, error) {
 	cliCtx := &CliContext{
-		ctx: NewLogger("optable-match-cli", c.Verbose).WithContext(context.Background()),
+		ctx: NewLogger("match-cli", c.Verbose).WithContext(context.Background()),
 	}
 
 	var err error
