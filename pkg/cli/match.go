@@ -4,13 +4,15 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"os"
 	"sort"
+	"strings"
 	"time"
 
 	v1 "github.com/optable/match-cli/api/v1"
 	"github.com/optable/match-cli/internal/auth"
-	matchclient "github.com/optable/match-cli/internal/client"
 	"github.com/optable/match-cli/internal/util"
+	"github.com/optable/match-cli/pkg/match"
 
 	"github.com/segmentio/ksuid"
 	"google.golang.org/protobuf/proto"
@@ -36,7 +38,7 @@ type (
 		InitTimeout time.Duration `default:"1m" help:"Timeout for the initialization of the match"`
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
-		File        string        `arg:"" required:"" help:"File to match"`
+		File        *os.File      `arg:"" required:"" help:"File to match"`
 	}
 
 	MatchCmd struct {
@@ -170,7 +172,7 @@ func (m *MatchListCmd) Run(cli *CliContext) error {
 	return nil
 }
 
-func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem string) (*tls.Config, error) {
+func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem, hostport string) (*tls.Config, error) {
 	tlsCertificate, err := cert.GetTLSCertificate()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get TLS certificate from ephemereal certificate: %w", err)
@@ -186,6 +188,8 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem string) (*tls.Co
 		// We skip verification and validate that the received certificate
 		// is stricly equal to the expected one with VerifyPeerCertificate
 		InsecureSkipVerify:    true,
+		ServerName:            strings.Split(hostport, ":")[0],
+		ClientAuth:            tls.RequireAnyClientCert,
 		VerifyPeerCertificate: auth.MakeVerifyPinnedCertificate(pinnedCert),
 	}, nil
 }
@@ -239,17 +243,18 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 }
 
 func (m *MatchRunCmd) Run(cli *CliContext) error {
+	defer m.File.Close()
 	ctx := withInfoLogger(cli.ctx)
 
 	ctx, cancel := context.WithTimeout(ctx, m.RunTimeout)
 	defer cancel()
 	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchID, m.RunTimeout)
 
-	records, err := util.ReadInput(m.File)
+	n, records, err := util.GenInputChannel(ctx, m.File)
 	if err != nil {
-		return fmt.Errorf("failed to load record file %s : %w", m.File, err)
+		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}
-	info(ctx).Msgf("loaded %d records from %s", len(records), m.File)
+	info(ctx).Msgf("loaded %d records from %s", n, m.File.Name())
 
 	partner := cli.config.findPartner(m.Partner)
 	if partner == nil {
@@ -276,12 +281,12 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	}
 
 	info(ctx).Msgf("running dhpsi protocol on %s", runMatchRes.Endpoint)
-	tlsConfig, err := getTLSConfig(ephemerealCertificate, runMatchRes.ServerCertificatePem)
+	tlsConfig, err := getTLSConfig(ephemerealCertificate, runMatchRes.ServerCertificatePem, runMatchRes.Endpoint)
 	if err != nil {
 		return fmt.Errorf("failed to create TLS config for dhpsi protocol: %w", err)
 	}
-	err = matchclient.RunDHPSI(ctx, runMatchRes.Endpoint, tlsConfig, records)
-	if err != nil {
+
+	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
 		return fmt.Errorf("failed to run DHPSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed dhpsi protocol")
