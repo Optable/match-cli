@@ -7,7 +7,9 @@ The match-cli tool enables anyone without access to an Optable DCN (_external pa
 ## Commands
 The `match-cli` tool provides two subcommands. The `partner` subcommand connects to a DCN to match with and identifies the sender (`match-cli` operator) as an external partner. The `match` subcommand creates a match attempt and performs the secure intersection protocol. For each subcommand, use the `--help` flag to see detailed help messages and available options.
 
-Full documentation is available [here](https://app.gitbook.com/@optable/s/optable-documentation/guides/match-cli).
+Note that it's not currently possible to be a secure match *receiver* using the `match-cli` utility. To receive secure matches you currently must have access to an Optable DCN.
+
+Additional documentation is available [here](https://app.gitbook.com/@optable/s/optable-documentation/guides/match-cli).
 
 ## Example
 To perform a secure PSI match with a DCN, you must first obtain an `<invite-code>` from the DCN's operator. The `<partner-name>` below is used to identify the DCN you are connecting with for subsequent match operations.
