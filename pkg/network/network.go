@@ -17,7 +17,8 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 		return nil, fmt.Errorf("failed resolving TCP address of %s: %w", endpoint, err)
 	}
 
-	timeout := time.NewTimer(time.Minute)
+	// timeout after 2 mins
+	timeout := time.NewTimer(2 * time.Minute)
 	for {
 		select {
 		case <-ctx.Done():
@@ -25,7 +26,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 		case <-timeout.C:
 			return nil, fmt.Errorf("connection time exceeded")
 		default:
-			// try connection
+			// retry
 		}
 
 		conn, err := net.DialTCP("tcp", nil, raddr)
@@ -48,30 +49,43 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 }
 
 // Listen listens to a tcp connection to host and returns a nagle enabled tls connection
-func Listen(host string, cred *tls.Config) (*tls.Conn, error) {
+func Listen(ctx context.Context, host string, cred *tls.Config) (*tls.Conn, error) {
 	laddr, err := net.ResolveTCPAddr(network, host)
 	if err != nil {
 		return nil, fmt.Errorf("failed resolving TCP address of %s: %w", host, err)
 	}
 
-	l, err := net.ListenTCP(network, laddr)
-	if err != nil {
-		return nil, fmt.Errorf("failed to listen %w", err)
-	}
+	timeout := time.NewTimer(2 * time.Minute)
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-timeout.C:
+			return nil, fmt.Errorf("connection time exceeded")
+		default:
+			// retry
+		}
 
-	conn, err := l.AcceptTCP()
-	if err != nil {
-		return nil, fmt.Errorf("failed to accept connection: %w", err)
-	}
-	// enable nagle
-	if err := conn.SetNoDelay(false); err != nil {
-		return nil, fmt.Errorf("cannot enable nagle: %w", err)
-	}
+		l, err := net.ListenTCP(network, laddr)
+		if err != nil {
+			return nil, fmt.Errorf("failed to listen %w", err)
+		}
 
-	c := tls.Server(conn, cred)
-	if err := c.Handshake(); err != nil {
-		return nil, fmt.Errorf("server: handshake failed: %w", err)
-	}
+		conn, err := l.AcceptTCP()
+		if err != nil {
+			return nil, fmt.Errorf("failed to accept connection: %w", err)
+		}
+		// enable nagle
+		if err := conn.SetNoDelay(false); err != nil {
+			return nil, fmt.Errorf("cannot enable nagle: %w", err)
+		}
 
-	return c, nil
+		c := tls.Server(conn, cred)
+		if err := c.Handshake(); err != nil {
+			time.Sleep(time.Second)
+			continue
+		}
+
+		return c, nil
+	}
 }

@@ -28,7 +28,7 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 	if err != nil {
 		return err
 	}
-	zerolog.Ctx(ctx).Info().Msgf("received protocol: %d", protocol)
+	zerolog.Ctx(ctx).Info().Msgf("received protocol: %s", protocol)
 
 	sender, err := psi.NewSender(protocol, c)
 	if err != nil {
@@ -46,7 +46,7 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 // and returns the intersected identifiers or any errors encountered
 // during the match.
 func Receive(ctx context.Context, host string, cred *tls.Config, inputLen int64, identifiers <-chan []byte, protocols []uint8) ([][]byte, error) {
-	c, err := network.Listen(host, cred)
+	c, err := network.Listen(ctx, host, cred)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +57,14 @@ func Receive(ctx context.Context, host string, cred *tls.Config, inputLen int64,
 	if err != nil {
 		return nil, err
 	}
+	zerolog.Ctx(ctx).Info().Msgf("sender selected protocol: %s", selected)
 
 	receiver, err := psi.NewReceiver(selected, c)
 	if err != nil {
 		return nil, fmt.Errorf("failed creating PSI receiver %w", err)
 	}
+
+	zerolog.Ctx(ctx).Info().Msgf("created receiver to start PSI")
 
 	// intersect
 	return receiver.Intersect(ctx, inputLen, identifiers)

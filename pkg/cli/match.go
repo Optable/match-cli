@@ -35,7 +35,7 @@ type (
 
 	MatchRunCmd struct {
 		Partner     string        `arg:"" required:"" help:"Name of the partner"`
-		InitTimeout time.Duration `default:"1m" help:"Timeout for the initialization of the match"`
+		InitTimeout time.Duration `default:"2m" help:"Timeout for the initialization of the match"`
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
