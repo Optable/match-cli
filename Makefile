@@ -34,10 +34,13 @@ GO_MATCH_CLI_SRC_FILES := $(shell find cmd/cli -type f -name '*.go')
 GO_MATCH_CLI_FILES := $(GO_MATCH_CLI_SRC_FILES) $(GO_COMMON_SRC_FILES) $(GO_ADMIN_CLIENT_FILES)
 
 
-.PHONY: publish
-publish:
+.PHONT: docker-build
+docker-build:
 	docker build . --target publish -t match-cli-publish:$(DOCKER_TAG) \
     --file $(shell realpath infra/Dockerfile)
+
+.PHONY: publish
+publish: docker-build
 	docker run \
 		--volume $(HOME)/.config/gcloud:/root/.config/gcloud \
 		match-cli-publish:$(DOCKER_TAG) \
@@ -52,4 +55,3 @@ build: $(GO_MATCH_CLI_BIN)
 .PHONY: clean
 clean:
 	rm -f $(GO_MATCH_CLI_BIN)
-
