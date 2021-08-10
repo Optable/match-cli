@@ -49,8 +49,8 @@ workflows:
       - publish:
           requires:
             - build
-          filters:
+          # filters:
             # tags:
             #   only: /^v.*/
-            branches:
-              ignore: /.*/
+            # branches:
+            #   ignore: /.*/
