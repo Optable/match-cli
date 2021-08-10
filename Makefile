@@ -41,6 +41,11 @@ bin/match-cli: cmd/cli/main.go $(CLI_FILES)
 .PHONY: build
 build: $(CLI_BIN)
 
+.PHONY: release
+release: 
+	mkdir -p release && bash infra/run.sh --build release
+
 .PHONY: clean
 clean:
 	rm -f $(CLI_BIN)
+	rm -f release/*
