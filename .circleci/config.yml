@@ -21,7 +21,7 @@ jobs:
           name: Run tests
           command: go test -v ./...
       - store_artifacts: # upload built binary for displays in Artifacts
-          path: /bin/match-cli
+          path: bin/match-cli
           destinary: match-cli
 
 workflows:
