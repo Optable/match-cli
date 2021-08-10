@@ -7,7 +7,7 @@ jobs:
     steps:
       - checkout
       - restore_cache: # restores saved cache if no changes are detected since last run
-          keys: 
+          keys:
             - go-mod-v4-{{ checksum "go.sum" }}
       - run:
           name: Install Dependencies
@@ -29,3 +29,4 @@ workflows:
   build-workflow: # the name of our workflow
     jobs: # the jobs that we are sequencing.
       - build
+
