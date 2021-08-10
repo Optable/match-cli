@@ -22,8 +22,8 @@ jobs:
           command: go test -v ./...
   publish:
     docker:
-    # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
-    - image: circleci/golang:1.16
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.16
     steps:
       - checkout
       - restore_cache: # restores saved cache if no changes are detected since last run
@@ -40,8 +40,6 @@ jobs:
       - store_artifacts: # upload built binary for displays in Artifacts
         path: bin/match-cli
         destinary: match-cli
-
-
 workflows:
   version: 2.1
   build-workflow: # the name of our workflow
