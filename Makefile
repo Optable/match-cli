@@ -23,7 +23,7 @@ SRC_FILES := $(shell find cmd/cli -type f -name '*.go')
 CLI_FILES := $(SRC_FILES) $(COMMON_SRC_FILES) $(CLIENT_SRC_FILES)
 
 
-.PHONT: docker-build
+.PHONY: docker-build
 docker-build:
 	docker build . --target publish -t match-cli-publish:$(DOCKER_TAG) \
     --file $(shell realpath infra/Dockerfile)

@@ -1,0 +1,31 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.16
+    steps:
+      - checkout
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys: 
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go get ./...
+      - run: make build
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - ~/.cache/go-build
+      - run:
+          name: Run tests
+          command: go test -v ./...
+      - store_artifacts: # upload built binary for displays in Artifacts
+          path: /bin/match-cli
+          destinary: match-cli
+
+workflows:
+  version: 2.1
+  build-workflow: # the name of our workflow
+    jobs: # the jobs that we are sequencing.
+      - build
