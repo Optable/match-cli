@@ -43,7 +43,7 @@ build: $(CLI_BIN)
 
 .PHONY: release
 release: 
-	mkdir -p release && bash infra/run.sh --build release
+	mkdir -p release && bash infra/run.sh --build release $(BUILD_VERSION)
 
 .PHONY: clean
 clean:

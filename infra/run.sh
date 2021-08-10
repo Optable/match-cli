@@ -52,7 +52,8 @@ bin_filename() {
   local CLI="$1"
   local GOOS="$2"
   local GOARCH="$3"
-  local BIN_FILENAME="${CLI}-${GOOS}-${GOARCH}"
+  local VERSION="$4"
+  local BIN_FILENAME="${CLI}-${GOOS}-${GOARCH}-${VERSION}"
   if [[ "${GOOS}" == "windows" ]]; then BIN_FILENAME="${BIN_FILENAME}.exe"; fi
   echo -n "${BIN_FILENAME}"
 }
@@ -63,12 +64,12 @@ build() {
     GOOS=${PLATFORM%/*}
     GOARCH=${PLATFORM#*/}
     CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} make "bin/${CLI}"
-    cp "bin/${CLI}" "${1}/$(bin_filename "$CLI" "$GOOS" "$GOARCH")"
+    cp "bin/${CLI}" "${1}/$(bin_filename "$CLI" "$GOOS" "$GOARCH" "${2}")"
   done
 }
 
 if [ "$1" = "--build" ]; then
-  build "$2"
+  build "$2" "$3"
   exit 0
 fi
 
