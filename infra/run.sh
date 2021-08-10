@@ -58,10 +58,10 @@ bin_filename() {
 }
 
 build() {
+  make "clean"
   for PLATFORM in $PLATFORMS; do
     GOOS=${PLATFORM%/*}
     GOARCH=${PLATFORM#*/}
-    make "clean"
     CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} make "bin/${CLI}"
     cp "bin/${CLI}" "${1}/$(bin_filename "$CLI" "$GOOS" "$GOARCH")"
   done
