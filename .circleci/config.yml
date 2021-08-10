@@ -38,8 +38,8 @@ jobs:
             - ~/.cache/go-build
       - run: make release
       - store_artifacts: # upload built binary for displays in Artifacts
-        path: release/
-        destination: match-cli
+          path: release/
+          destination: match-cli
     
 workflows:
   version: 2.1
@@ -52,5 +52,5 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-          branches:
-            ignore: /.*/
+            branches:
+              ignore: /.*/
