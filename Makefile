@@ -60,7 +60,7 @@ linux:
 windows:
 	make clean-bin ;\
  	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 make bin/match-cli ;\
-	mkdir -p release && cp bin/match-cli release/match-cli-darwin-amd64-$(BUILD_VERSION).exe
+	mkdir -p release && cp bin/match-cli release/match-cli-windows-amd64-$(BUILD_VERSION).exe
 
 .PHONY: clean
 clean: clean-bin clean-release
