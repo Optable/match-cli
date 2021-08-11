@@ -1,5 +1,6 @@
 # match-cli
 [![CircleCI](https://circleci.com/gh/Optable/match-cli/tree/main.svg?style=svg)](https://circleci.com/gh/Optable/match-cli/tree/main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/optable/match-cli)](https://goreportcard.com/report/github.com/optable/match-cli)
 [![GoDoc](https://godoc.org/github.com/optable/match-cli?status.svg)](https://godoc.org/github.com/optable/match-cli)
 
 An open-source Command Line Interface (CLI) utility written in Golang to allow any *partner* of an Optable Data Connectivity Node (DCN) user to perform secure matches with the DCN. 
