@@ -42,10 +42,33 @@ bin/match-cli: cmd/cli/main.go $(CLI_FILES)
 build: $(CLI_BIN)
 
 .PHONY: release
-release: 
-	mkdir -p release && bash infra/run.sh --build release $(BUILD_VERSION)
+release: darwin linux windows
+
+.PHONY: darwin
+darwin:
+	make clean-bin ;\
+ 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 make bin/match-cli ;\
+	mkdir -p release && cp bin/match-cli release/match-cli-darwin-amd64-$(BUILD_VERSION)
+
+.PHONY: linux
+linux:
+	make clean-bin ;\
+ 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 make bin/match-cli ;\
+	mkdir -p release && cp bin/match-cli release/match-cli-linux-amd64-$(BUILD_VERSION)
+
+.PHONY: windows
+windows:
+	make clean-bin ;\
+ 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 make bin/match-cli ;\
+	mkdir -p release && cp bin/match-cli release/match-cli-darwin-amd64-$(BUILD_VERSION).exe
 
 .PHONY: clean
-clean:
+clean: clean-bin clean-release
+	
+.PHONY: clean-bin
+clean-bin: 
 	rm -f $(CLI_BIN)
+	
+.PHONY: clean-release
+clean-release:
 	rm -f release/*
