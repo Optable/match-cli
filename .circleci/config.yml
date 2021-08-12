@@ -1,9 +1,17 @@
 version: 2.1
-jobs:
-  build:
+
+executor:
+  match-cli:
     docker:
       # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
       - image: circleci/golang:1.16
+
+    # shared working directory among jobs
+    working_directory: /tmp
+
+jobs:
+  test:
+    executor: match-cli
     steps:
       - checkout
       - restore_cache: # restores saved cache if no changes are detected since last run
@@ -20,10 +28,8 @@ jobs:
       - run:
           name: Run tests
           command: go test -v ./...
-  publish:
-    docker:
-      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
-      - image: circleci/golang:1.16
+  build:
+    executor: match-cli
     steps:
       - checkout
       - restore_cache: # restores saved cache if no changes are detected since last run
@@ -37,21 +43,40 @@ jobs:
           paths:
             - ~/.cache/go-build
       - run: make release
-      - store_artifacts: # upload built binary for displays in Artifacts
-          path: release/
-          destination: release
+
+      # Persist the specified paths into the workspace for use in downstream job.
+      - persist_to_workspace:
+        # taken to be the root directory of the workspace.
+          root: /match-cli/release
+          paths:
+            - match-cli-*
+
+  publish-github-release:
+    executor: match-cli
+    steps:
+      - attach_workspace:
+          at: /tmp/match-cli/release
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=0.0.1
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/release/
     
 workflows:
   version: 2
   build-workflow: # the name of our workflow
     jobs: # the jobs that we are sequencing.
-      - build
-      - publish:
+      - test
+      - build:
           requires:
-            - build
+            - test
           # filters:
           #  tags:
           #    only: /^v.*/
           #  branches:
           #    ignore: /.*/
+      - publish-github-release:
+          requires:
+            - build
               
