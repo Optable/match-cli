@@ -6,9 +6,6 @@ executors:
       # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
       - image: circleci/golang:1.16
 
-    # shared working directory among jobs
-    working_directory: /tmp
-
 jobs:
   test:
     executor: match-cli
@@ -47,7 +44,7 @@ jobs:
       # Persist the specified paths into the workspace for use in downstream job.
       - persist_to_workspace:
         # taken to be the root directory of the workspace.
-          root: /match-cli/release
+          root: ./release
           paths:
             - match-cli-*
 
@@ -55,13 +52,13 @@ jobs:
     executor: match-cli
     steps:
       - attach_workspace:
-          at: /tmp/match-cli/release
+          at: ./release
       - run:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
             VERSION=0.0.1
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} /tmp/release/
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./release/
     
 workflows:
   version: 2
