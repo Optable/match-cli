@@ -57,8 +57,8 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
-            VERSION=0.0.1
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./release/
+            VERSION=($(./release/match-cli-linux-amd64 version))
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION[1]} ./release/
     
 workflows:
   version: 2
@@ -68,11 +68,11 @@ workflows:
       - build:
           requires:
             - test
-          # filters:
-          #  tags:
-          #    only: /^v.*/
-          #  branches:
-          #    ignore: /.*/
+          filters:
+            tags:
+             only: /^v.*/
+            branches:
+              only: main
       - publish-github-release:
           requires:
             - build
