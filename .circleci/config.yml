@@ -1,6 +1,6 @@
 version: 2.1
 
-executor:
+executors:
   match-cli:
     docker:
       # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
