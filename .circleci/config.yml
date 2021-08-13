@@ -58,9 +58,9 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/github-release/github-release
-            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --file ./release/match-cli-darwin-amd64
-            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --file ./release/match-cli-linux-amd64
-            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --file ./release/match-cli-windows-amd64.exe
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-darwin-amd64" --file ./release/match-cli-darwin-amd64
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-linux-amd64" --file ./release/match-cli-linux-amd64
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-windows-amd64.exe" --file ./release/match-cli-windows-amd64.exe
 
 workflows:
   version: 2
@@ -82,4 +82,3 @@ workflows:
           filters:
             tags:
               only: /^v.*/
-              
