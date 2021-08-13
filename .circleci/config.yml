@@ -39,7 +39,7 @@ jobs:
           key: go-mod-v4-{{ checksum "go.sum" }}
           paths:
             - ~/.cache/go-build
-      - run: make release
+      - run: make BUILD_VERSION="${CIRCLE_TAG}" release
 
       # Persist the specified paths into the workspace for use in downstream job.
       - persist_to_workspace:
