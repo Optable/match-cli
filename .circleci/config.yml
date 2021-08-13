@@ -88,6 +88,8 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
       - publish-github-release:
           requires:
             - build
