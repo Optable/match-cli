@@ -81,20 +81,19 @@ workflows:
   version: 2
   build-workflow: # the name of our workflow
     jobs: # the jobs that we are sequencing.
-      - test
+      - test:
+        filters:
+          tags:
+            only: /.*/
       - build:
-          requires:
-            - test
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+        requires:
+          - test
+        filters:
+          tags:
+            only: /^v.*/
       - publish-github-release:
-          requires:
-            - build
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+        requires:
+          - build
+        filters:
+          tags:
+            only: /^v.*/
