@@ -16,7 +16,7 @@ CLI_BIN = $(subst cmd,bin,$(CLI_CMD))
 CLI_FILES := $(SRC_FILES) $(COMMON_SRC_FILES) $(CLIENT_SRC_FILES)
 
 bin/match-cli: cmd/cli/main.go $(CLI_FILES)
-	$(GO) build -o $@ $<
+	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.Version=${CIRCLE_TAG}" -o $@ $<
 
 .PHONY: build
 build: $(CLI_BIN)
