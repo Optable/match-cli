@@ -4,13 +4,26 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"github.com/alecthomas/kong"
 )
+
+// version will be set to be the latest git tag should build flag"
+var version string
 
 type Cli struct {
 	Verbose int `opt:"" short:"v" type:"counter" help:"Enable debug mode."`
 
+	Version VersionCmd `cmd:"" help:"Show match-cli version."`
 	Partner PartnerCmd `cmd:"" help:"Partner command."`
 	Match   MatchCmd   `cmd:"" help:"Match command."`
+}
+
+type VersionCmd struct{}
+
+func (v *VersionCmd) Run(ctx *kong.Context) error {
+	ctx.Printf(version)
+	return nil
 }
 
 func (c *Cli) NewContext() (*CliContext, error) {

@@ -1,0 +1,88 @@
+version: 2.1
+
+executors:
+  match-cli:
+    docker:
+      # CircleCI Go images available at: https://hub.docker.com/r/circleci/golang/
+      - image: circleci/golang:1.16
+
+jobs:
+  test:
+    executor: match-cli
+    steps:
+      - checkout
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go get ./...
+      - run: make build
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - ~/.cache/go-build
+      - run:
+          name: Run tests
+          command: go test -v ./...
+  build:
+    executor: match-cli
+    steps:
+      - checkout
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install Dependencies
+          command: go get ./...
+      - save_cache:
+          key: go-mod-v4-{{ checksum "go.sum" }}
+          paths:
+            - ~/.cache/go-build
+      - run: make BUILD_VERSION="${CIRCLE_TAG}" release
+
+      # Persist the specified paths into the workspace for use in downstream job.
+      - persist_to_workspace:
+        # taken to be the root directory of the workspace.
+          root: ./release
+          paths:
+            - match-cli-*
+
+  publish-github-release:
+    executor: match-cli
+    steps:
+      - attach_workspace:
+          at: ./release
+      - run:
+          # this assumes a formal github release is already done.
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/github-release/github-release
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-darwin-amd64" --file ./release/match-cli-darwin-amd64
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-linux-amd64" --file ./release/match-cli-linux-amd64
+            github-release upload --user optable --repo match-cli --tag ${CIRCLE_TAG} --name "match-cli-windows-amd64.exe" --file ./release/match-cli-windows-amd64.exe
+
+workflows:
+  version: 2
+  build-workflow: # the name of our workflow
+    jobs:
+      - test: 
+          filters:
+            tags:
+              only: /.*/
+      - build:
+          requires:
+              - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - publish-github-release:
+          requires:
+              - build
+          filters:
+              tags:
+                  only: /^v.*/
+              branches:
+                ignore: /.*/
