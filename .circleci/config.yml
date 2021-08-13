@@ -72,13 +72,17 @@ workflows:
               only: /.*/
       - build:
           requires:
-            - test
+              - test
           filters:
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
       - publish-github-release:
           requires:
-            - build
+              - build
           filters:
-            tags:
-              only: /^v.*/
+              tags:
+                  only: /^v.*/
+              branches:
+                ignore: /.*/
