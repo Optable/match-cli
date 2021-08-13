@@ -1,5 +1,5 @@
 # BUILD_VERSION is the version of the build.
-BUILD_VERSION := $(shell git describe)
+BUILD_VERSION="${CIRCLE_TAG}"
 # BUILD_COMMIT is the commit from which the binary was build.
 BUILD_COMMIT := $(shell git rev-parse HEAD)
 # BUILD_DATE is the date at which the binary was build.
@@ -16,7 +16,7 @@ CLI_BIN = $(subst cmd,bin,$(CLI_CMD))
 CLI_FILES := $(SRC_FILES) $(COMMON_SRC_FILES) $(CLIENT_SRC_FILES)
 
 bin/match-cli: cmd/cli/main.go $(CLI_FILES)
-	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.Version=${CIRCLE_TAG}" -o $@ $<
+	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.version=${BUILD_VERSION}" -o $@ $<
 
 .PHONY: build
 build: $(CLI_BIN)

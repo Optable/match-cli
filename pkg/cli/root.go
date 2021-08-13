@@ -8,8 +8,8 @@ import (
 	"github.com/alecthomas/kong"
 )
 
-// VERSION will be set as go build -ldflags "-X main.VERSION=${CIRCLE_TAG}"
-var Version string
+// version will be set to be the latest git tag should build flag"
+var version string
 
 type Cli struct {
 	Verbose int `opt:"" short:"v" type:"counter" help:"Enable debug mode."`
@@ -22,7 +22,7 @@ type Cli struct {
 type VersionCmd struct{}
 
 func (v *VersionCmd) Run(ctx *kong.Context) error {
-	ctx.Printf(Version)
+	ctx.Printf(version)
 	return nil
 }
 
