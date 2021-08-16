@@ -8,7 +8,7 @@ import (
 	"github.com/alecthomas/kong"
 )
 
-// version will be set to be the latest git tag should build flag"
+// version will be set to be the latest git tag through build flag"
 var version string
 
 type Cli struct {
