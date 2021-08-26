@@ -4,13 +4,6 @@ option go_package = "github.com/optable/match-cli/api/v1";
 
 import "google/protobuf/timestamp.proto";
 
-message InsightsHistory {
-  // Insights on a graph, after expansion
-
-  // Latest computed insights ordered by computation date descendant
-  repeated Insights trend = 1;
-}
-
 message Insights {
   google.protobuf.Timestamp computed_at = 1;
 

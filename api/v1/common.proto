@@ -42,27 +42,3 @@ message Error {
     UnprocessableDetails unprocessable = 3;
   }
 }
-
-// Listings
-
-message PageReq {
-  int32 page = 1;
-  int32 size = 2;
-}
-
-message SortField {
-  string key = 1;
-  bool desc = 2;
-}
-
-message PageRes {
-  // More pages are available
-  bool has_more = 1;
-  // Total number of rows
-  int64 total = 2;
-}
-
-message TraceContext {
-  string trace_id = 1;
-  string parent_span_id = 2;
-}
