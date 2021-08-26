@@ -16,11 +16,7 @@ jobs:
             - go-mod-v4-{{ checksum "go.sum" }}
       - run:
           name: Install System Dependencies
-          command: apt install -y protobuf-compiler && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26.0
-
-      - run:
-          name: Install System Dependencies
-          command: apt install -y protobuf-compiler
+          command: sudo apt install -y protobuf-compiler && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26.0
       - run:
           name: Install Dependencies
           command: go get ./...
@@ -58,9 +54,9 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^v.*/
+              only: /.*/
             branches:
-              ignore: /.*/
+              only: /.*/
       - publish-github-release:
           requires:
             - build

@@ -8,7 +8,7 @@ BUILD_VERSION := $(shell git describe --tags)
 GO := $(shell which go)
 
 .PHONY: build
-build: proto-compile
+build:
 	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.version=${BUILD_VERSION}" -o bin/match-cli cmd/cli/main.go
 
 .PHONY: proto-compile
