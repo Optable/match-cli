@@ -3,25 +3,17 @@ package client
 import (
 	"bytes"
 	"context"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
 	v1 "github.com/optable/match-cli/api/v1"
-	"github.com/optable/match-cli/internal/auth"
 	"github.com/optable/match-cli/internal/protox"
 
-	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
-
-const maxPageSize = 100
 
 type AdminRpcClient struct {
 	*http.Client
@@ -42,60 +34,6 @@ func (fn TokenSourceFn) Token(req *http.Request) (string, error) {
 func StaticTokenSource(authToken string) TokenSource {
 	return TokenSourceFn(func(_ *http.Request) (string, error) {
 		return authToken, nil
-	})
-}
-
-func UserCredentialsTokenSource(email string, secret string, authAPIURL string) TokenSource {
-	return TokenSourceFn(func(req *http.Request) (string, error) {
-		res, err := CreateUserSession(req.Context(), authAPIURL, &v1.CreateSessionReq{
-			Email:  email,
-			Secret: secret,
-		})
-
-		if err != nil {
-			return "", err
-		}
-
-		return res.Token, nil
-	})
-}
-
-func ServiceKeyTokenSource(keyID string, privateKeyDer string) TokenSource {
-	return TokenSourceFn(func(req *http.Request) (string, error) {
-		hasher := sha256.New()
-		body, err := req.GetBody()
-		if err != nil {
-			return "", err
-		}
-
-		bytes, err := ioutil.ReadAll(body)
-		if err != nil {
-			return "", err
-		}
-		checksum := hasher.Sum(bytes)
-
-		token := jwt.NewWithClaims(jwt.SigningMethodES256, &auth.SignedRequestClaims{
-			StandardClaims: jwt.StandardClaims{Issuer: keyID},
-			B:              base64.URLEncoding.EncodeToString(checksum),
-			TS:             time.Now().Unix(),
-		})
-
-		decoded, err := base64.StdEncoding.DecodeString(privateKeyDer)
-		if err != nil {
-			return "", err
-		}
-
-		privateKey, err := x509.ParseECPrivateKey(decoded)
-		if err != nil {
-			return "", err
-		}
-
-		signedToken, err := token.SignedString(privateKey)
-		if err != nil {
-			return "", err
-		}
-
-		return signedToken, nil
 	})
 }
 

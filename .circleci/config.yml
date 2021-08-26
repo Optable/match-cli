@@ -7,24 +7,6 @@ executors:
       - image: circleci/golang:1.16
 
 jobs:
-  test:
-    executor: match-cli
-    steps:
-      - checkout
-      - restore_cache: # restores saved cache if no changes are detected since last run
-          keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
-      - run:
-          name: Install Dependencies
-          command: go get ./...
-      - run: make build
-      - save_cache:
-          key: go-mod-v4-{{ checksum "go.sum" }}
-          paths:
-            - ~/.cache/go-build
-      - run:
-          name: Run tests
-          command: go test -v ./...
   build:
     executor: match-cli
     steps:
@@ -32,6 +14,9 @@ jobs:
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
             - go-mod-v4-{{ checksum "go.sum" }}
+      - run:
+          name: Install System Dependencies
+          command: sudo apt install -y protobuf-compiler && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26.0
       - run:
           name: Install Dependencies
           command: go get ./...
@@ -43,7 +28,7 @@ jobs:
 
       # Persist the specified paths into the workspace for use in downstream job.
       - persist_to_workspace:
-        # taken to be the root directory of the workspace.
+          # taken to be the root directory of the workspace.
           root: ./release
           paths:
             - match-cli-*
@@ -66,23 +51,17 @@ workflows:
   version: 2
   build-workflow: # the name of our workflow
     jobs:
-      - test: 
+      - build:
           filters:
             tags:
               only: /.*/
-      - build:
+            branches:
+              only: /.*/
+      - publish-github-release:
           requires:
-              - test
+            - build
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
-      - publish-github-release:
-          requires:
-              - build
-          filters:
-              tags:
-                  only: /^v.*/
-              branches:
-                ignore: /.*/
