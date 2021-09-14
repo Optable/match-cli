@@ -1,0 +1,28 @@
+syntax = "proto3";
+package v1;
+option go_package = "github.com/optable/match-cli/api/v1";
+
+import "google/protobuf/timestamp.proto";
+
+message PartnersInitToken {
+  string slug = 1;
+  // URL to and external/api/info endpoint
+  string sandbox_info = 2;
+  string secret = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp expires_at = 5;
+}
+
+message CreateExternalInitTokenReq {
+  // Name of the (adhoc?) partner
+  string name = 1;
+}
+
+message CreateExternalInitTokenRes {
+  PartnersInitToken token = 1;
+}
+
+message RegisterExternalPartnerReq {
+  string public_key = 1;
+  string token = 2;
+}
