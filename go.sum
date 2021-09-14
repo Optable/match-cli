@@ -54,7 +54,6 @@ github.com/devopsfaith/bloomfilter v1.4.0/go.mod h1:LQuMjwtBekCk8qdTHOJ7wZpEYB3J
 github.com/devopsfaith/flatmap v0.0.0-20200601181759-8521186182fc/go.mod h1:J9Y/58s7wx7HbHT3i4UKNwLGuBB9qCf0/JUdEFGDPmA=
 github.com/devopsfaith/krakend-consul v1.4.0/go.mod h1:76v8AByTEzlBbiGWEzHFvT4g9BOtr8fpotYIMoac64Q=
 github.com/devopsfaith/krakend-gologging v1.4.0/go.mod h1:0IBy8rXN5ck5nHp5DRxOki3nPVm3Akta4X78qeNATwA=
-github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-highway v0.0.0-20210309212254-61406496927c h1:BU5wmdaJQ45rcu5N8BLEBnLc6F8cjg25rRCQqCID6ns=
 github.com/dgryski/go-highway v0.0.0-20210309212254-61406496927c/go.mod h1:k3huN2j0rapqSEtGr9Yy2/RnTtn4jTiufYz6j6Kv+wM=
@@ -87,6 +86,8 @@ github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5x
 github.com/gogo/googleapis v1.1.0/go.mod h1:gf4bu3Q80BeJ6H1S1vYPm8/ELATdvryBaNFGgqEef3s=
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
+github.com/golang-jwt/jwt/v4 v4.0.0 h1:RAqyYixv1p7uEnocuy8P1nru5wprCh/MH2BIlW5z5/o=
+github.com/golang-jwt/jwt/v4 v4.0.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/protobuf v1.0.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

@@ -12,7 +12,7 @@ import (
 
 	"github.com/optable/match-cli/internal/client"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 const configFile = ".config/optable/optable-match-cli.conf"
