@@ -1,5 +1,5 @@
-# BUILD_VERSION is the version of the build.
-BUILD_VERSION := $(shell git describe --tags)
+# BUILD_VERSION is the latest tag.
+BUILD_VERSION := $(shell git describe --tags --always)
 
 #
 # Go sources management.
