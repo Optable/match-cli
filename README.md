@@ -5,7 +5,7 @@
 
 An open-source Command Line Interface (CLI) utility written in Golang to allow any *partner* of an Optable Data Connectivity Node (DCN) user to perform secure matches with the DCN. 
 
-The match-cli tool enables anyone without access to an Optable DCN (_external partners_) to create and run a secure private set intersection (PSI) match with a DCN customer using the open-source [match](https://github.com/Optable/match) libary. Both parties will run the [DHPSI](https://github.com/Optable/match/blob/main/pkg/dhpsi/README.md) protocol by default to ensure that no private data is leaked during the match. 
+The match-cli tool enables anyone without access to an Optable DCN (_external partners_) to create and run a secure private set intersection (PSI) match with an Optable DCN customer using the open-source [match](https://github.com/Optable/match) library. Both parties will run the [DHPSI](https://github.com/Optable/match/blob/main/pkg/dhpsi/README.md) protocol by default to ensure that non-overlapping data is protected during the match. 
 
 ## Build
 You can build the latest `match-cli` binary by running the following comamnd:
@@ -13,21 +13,20 @@ You can build the latest `match-cli` binary by running the following comamnd:
 # clone the repo and go to the directory
 git clone https://github.com/Optable/match-cli.git && cd match-cli
 
-# compile
+# compile:
 make
-# or more specifically
+
+# or more specifically:
 make build
 ```
-The compiled binary will be located in `bin/match-cli`.
-
-## Commands
-The `match-cli` tool provides two subcommands. The `partner` subcommand connects to a DCN to match with and identifies the sender (`match-cli` operator) as an external partner. The `match` subcommand creates a match attempt and performs the secure intersection protocol. For each subcommand, use the `--help` flag to see detailed help messages and available options.
-
-Note that it's not currently possible to be a secure match *receiver* using the `match-cli` utility. To receive secure matches you currently must have access to an Optable DCN.
-
-Additional documentation is available [here](https://app.gitbook.com/@optable/s/optable-documentation/guides/match-cli).
+The successfully compiled binary will be located in `bin/match-cli`.
 
 ## Example
+
+### Preparing the Match File
+The input file that you provide to the `match-cli` utility should contain a line-separated list of type-prefixed and matchable identifiers recognizable by the partner's Optable DCN. The current list of supported matchable ID types and their associated normalization requirements and prefixes is documented [here](https://docs.optable.co/optable-documentation/reference/identifier-types#matchable-id-types) and [here](https://docs.optable.co/optable-documentation/reference/identifier-types#type-prefixes).
+
+### Performing the Secure Match
 To perform a secure PSI match with a DCN, you must first obtain an `<invite-code>` from the DCN's operator. The `<partner-name>` below is used to identify the DCN you are connecting with for subsequent match operations.
 ```bash
 $ bin/match-cli partner connect <partner-name> "<invite-code>"
@@ -52,3 +51,13 @@ Upon successful execution of the match, the number of the matching identifiers w
 ```bash
 {"time":"YYYY-MM-DDTHH:MM:SS.000000Z","id":"UUID","state":"completed","results":{"emails":<intersection-size>}}
 ```
+
+## Commands
+The `match-cli` utility provides two subcommands. The `partner` subcommand connects to a DCN to match with and identifies the sender (`match-cli` operator) as an external partner. The `match` subcommand creates a match attempt and performs the secure intersection protocol. For each subcommand, use the `--help` flag to see detailed help messages and available options.
+
+Note that it's not currently possible to be a secure match *receiver* using the `match-cli` utility. To receive secure matches you currently must have access to an Optable DCN.
+
+Additional documentation is available [here](https://docs.optable.co/optable-documentation/guides/match-cli).
+
+## Local Configuration
+The `match-cli` utility stores information about connected DCNs to `$HOME/.config/optable`. This directory will contain private keys associated with each of the partners that you successfully connect to using `match-cli`, so you'll want to make sure that it is suitably protected from snooping (`chmod -R 600 $HOME/.config/optable`).
