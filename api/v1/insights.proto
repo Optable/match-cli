@@ -9,16 +9,15 @@ message Insights {
 
   // Number of connected components in the graph.
   int64 clusters = 2;
-
-  int64 emails = 3;
-  int64 visitor_ids = 4;
-  int64 apple_idfas = 5;
-  int64 google_gaids = 6;
-  int64 custom_ids = 7;
-  int64 ipv4s = 8;
-  int64 ipv6s = 9;
-  int64 samsung_tifas = 10;
-  int64 roku_ridas = 11;
-  int64 amazon_afais = 12;
-  int64 phone_numbers = 13;
+  int64 emails = 3 [json_name="e"];
+  int64 visitor_ids = 4 [json_name="v"];
+  int64 apple_idfas = 5 [json_name="a"];
+  int64 google_gaids = 6 [json_name="g"];
+  int64 custom_ids = 7 [json_name="c"];
+  int64 ipv4s = 8 [json_name="i4"];
+  int64 ipv6s = 9 [json_name="i6"];
+  int64 samsung_tifas = 10 [json_name="s"];
+  int64 roku_ridas = 11 [json_name="r"];
+  int64 amazon_afais = 12 [json_name="f"];
+  int64 phone_numbers = 13 [json_name="p"];
 }

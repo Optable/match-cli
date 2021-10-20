@@ -2,7 +2,10 @@ package cli
 
 import (
 	"context"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 	"encoding/json"
+	"strings"
 	"fmt"
 
 	"github.com/alecthomas/kong"
@@ -45,12 +48,22 @@ func (c *Cli) NewContext() (*CliContext, error) {
 	return cliCtx, nil
 }
 
+func protoJSON(m proto.Message) (string, error) {
+	result, err := protojson.Marshal(m)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal json: %w", err)
+	}
+
+	return string(result), err
+}
+
 func printJson(v interface{}) error {
 	result, err := json.Marshal(v)
 	if err != nil {
 		return fmt.Errorf("failed to marshal json: %w", err)
 	}
 
-	fmt.Println(string(result))
-	return nil
+	// This is to escape the escaped quotes
+	fmt.Println(strings.Replace(string(result), "\\", "", -1))
+	return err
 }

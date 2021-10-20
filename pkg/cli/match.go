@@ -54,7 +54,7 @@ type matchResult struct {
 	Id       string       `json:"id"`
 	State    string       `json:"state"`
 	ErrorMsg string       `json:"error_msg,omitempty"`
-	Results  *v1.Insights `json:"results,omitempty"`
+	Results  string	  	  `json:"results,omitempty"`
 }
 
 func matchResultStateFromProto(state v1.ExternalMatchResultState) string {
@@ -81,8 +81,9 @@ func matchResultFromProto(resultpb *v1.ExternalMatchResult) *matchResult {
 	}
 
 	if resultpb.Insights != nil {
-		result.Results = proto.Clone(resultpb.Insights).(*v1.Insights)
-		result.Results.ComputedAt = nil
+		insight := proto.Clone(resultpb.Insights).(*v1.Insights)
+		insight.ComputedAt = nil
+		result.Results, _ = protoJSON(insight)
 	}
 
 	return result
