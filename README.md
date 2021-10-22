@@ -1,5 +1,5 @@
 # match-cli
-[![CircleCI](https://circleci.com/gh/Optable/match-cli/tree/main.svg?style=svg)](https://circleci.com/gh/Optable/match-cli/tree/main)
+[![CircleCI](https://circleci.com/gh/Optable/match-cli/tree/main.svg?style=svg&circle-token=48635f8db37218b3441812f8922bfe688d778a9e)](https://circleci.com/gh/Optable/match-cli/tree/main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/optable/match-cli)](https://goreportcard.com/report/github.com/optable/match-cli)
 [![GoDoc](https://godoc.org/github.com/optable/match-cli?status.svg)](https://godoc.org/github.com/optable/match-cli)
 
