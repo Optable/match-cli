@@ -60,4 +60,4 @@ Note that it's not currently possible to be a secure match *receiver* using the 
 Additional documentation is available [here](https://docs.optable.co/optable-documentation/guides/match-cli).
 
 ## Local Configuration
-The `match-cli` utility stores information about connected DCNs to `$HOME/.config/optable`. This directory will contain private keys associated with each of the partners that you successfully connect to using `match-cli`, so you'll want to make sure that it is suitably protected from snooping (`chmod -R 600 $HOME/.config/optable`).
+The `match-cli` utility stores information about connected DCNs to `$HOME/.config/optable`. This directory is created with the proper file permissions to prevent snooping since it will contain private keys associated with each of the partners that you successfully connect to using `match-cli`.
