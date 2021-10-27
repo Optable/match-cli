@@ -75,7 +75,7 @@ func matchResultStateFromProto(state v1.ExternalMatchResultState) string {
 func matchResultFromProto(resultpb *v1.ExternalMatchResult) *matchResult {
 	result := &matchResult{
 		Time:     resultpb.UpdatedAt.AsTime(),
-		Id:       resultpb.Uuid,
+		Id:       resultpb.Uid,
 		State:    matchResultStateFromProto(resultpb.State),
 		ErrorMsg: resultpb.ErrorMsg,
 	}
@@ -100,8 +100,8 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 	}
 
 	req := &v1.CreateExternalMatchReq{
-		MatchUuid: ksuid.New().String(),
-		Name:      m.Name,
+		MatchUid: ksuid.New().String(),
+		Name:     m.Name,
 		RefreshFrequency: &v1.CreateExternalMatchReq_Adhoc{
 			Adhoc: &v1.ExternalMatchRefreshAdhoc{},
 		},
@@ -127,7 +127,7 @@ func (m *MatchGetResultsCmd) Run(cli *CliContext) error {
 	}
 
 	req := &v1.GetExternalMatchResultsReq{
-		MatchUuid: m.MatchId,
+		MatchUid: m.MatchId,
 	}
 
 	res, err := client.GetMatchResults(cli.ctx, req)
@@ -205,8 +205,8 @@ func pollRunMatch(ctx context.Context, partner *PartnerConfig, matchUUID string,
 	for {
 		info(ctx).Msgf("still polling /match/run to get match endpoint")
 		res, err := client.RunMatch(ctx, &v1.RunExternalMatchReq{
-			MatchUuid:            matchUUID,
-			MatchResultUuid:      matchResultUUID,
+			MatchUid:             matchUUID,
+			MatchResultUid:       matchResultUUID,
 			ClientCertificatePem: string(cert.CertificatePem),
 		})
 		if err != nil {
@@ -230,7 +230,7 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 
 	for {
 		info(ctx).Msgf("still polling /match/get-result for results")
-		res, err := client.GetResult(ctx, &v1.GetExternalMatchResultReq{MatchResultUuid: matchResultUUID})
+		res, err := client.GetResult(ctx, &v1.GetExternalMatchResultReq{MatchResultUid: matchResultUUID})
 		if err != nil {
 			return nil, err
 		}
@@ -294,7 +294,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	info(ctx).Msg("successfully completed PSI")
 
 	info(ctx).Msgf("polling /match/get-result for results")
-	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUuid)
+	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUid)
 	if err != nil {
 		return fmt.Errorf("failed to poll /match/get-result: %w", err)
 	}
