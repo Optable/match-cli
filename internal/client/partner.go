@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 )

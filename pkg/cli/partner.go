@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 
 	"google.golang.org/protobuf/encoding/protojson"
 )

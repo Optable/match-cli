@@ -11,16 +11,6 @@ GO := $(shell which go)
 build:
 	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.version=${BUILD_VERSION}" -o bin/match-cli cmd/cli/main.go
 
-.PHONY: proto-compile
-proto-compile: proto-clean
-	protoc --proto_path api/v1 \
-		--go_out=api/v1 --go_opt=paths=source_relative \
-		api/v1/*.proto
-
-.PHONY: proto-clean
-proto-clean:
-	-rm api/v1/*.pb.go
-
 .PHONY: release
 release: darwin linux windows
 
