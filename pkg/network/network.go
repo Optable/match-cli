@@ -38,7 +38,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 				// if main context is timed out, abort operation
 				return true, nil, fmt.Errorf("dial PSI timed out: %w", ctx.Err())
 			default:
-				//retry on any dial errors
+				// retry on any dial errors
 				return false, nil, nil
 			}
 		}
@@ -52,7 +52,18 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 			return true, nil, fmt.Errorf("failed to enable nagle: %w", err)
 		}
 
-		return true, tls.Client(tcpConn, cred), nil
+		tlsConn := tls.Client(tcpConn, cred)
+		// test the tls connection
+		if err = tlsConn.Handshake(); err != nil {
+			dialConn.Close()
+			// retry on client tls handshake faillures,
+			// this is to wait for the server to be ready when
+			// the connection is being rerouted by a proxy using SNI.
+			return false, nil, nil
+		}
+
+		// succeed in establishing a tls connection
+		return true, tlsConn, nil
 	}
 
 	for {
@@ -102,5 +113,12 @@ func Listen(ctx context.Context, host string, cred *tls.Config) (*tls.Conn, erro
 		return nil, fmt.Errorf("failed to enable nagle: %w", err)
 	}
 
-	return tls.Server(tcpConn, cred), nil
+	tlsConn := tls.Server(tcpConn, cred)
+	// test the tls connection
+	if err := tlsConn.Handshake(); err != nil {
+		conn.Close()
+		return nil, fmt.Errorf("server: failed to establish a secure tls connection: %w", err)
+	}
+
+	return tlsConn, nil
 }
