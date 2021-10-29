@@ -52,15 +52,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 			return true, nil, fmt.Errorf("failed to enable nagle: %w", err)
 		}
 
-		tlsConn := tls.Client(tcpConn, cred)
-		// test the tls connection
-		if err = tlsConn.Handshake(); err != nil {
-			dialConn.Close()
-			return true, nil, fmt.Errorf("client: failed to establish a secure tls connection: %w", err)
-		}
-
-		// succeed in establishing a tls connection
-		return true, tlsConn, nil
+		return true, tls.Client(tcpConn, cred), nil
 	}
 
 	for {
@@ -110,12 +102,5 @@ func Listen(ctx context.Context, host string, cred *tls.Config) (*tls.Conn, erro
 		return nil, fmt.Errorf("failed to enable nagle: %w", err)
 	}
 
-	tlsConn := tls.Server(tcpConn, cred)
-	// test the tls connection
-	if err := tlsConn.Handshake(); err != nil {
-		conn.Close()
-		return nil, fmt.Errorf("server: failed to establish a secure tls connection: %w", err)
-	}
-
-	return tlsConn, nil
+	return tls.Server(tcpConn, cred), nil
 }
