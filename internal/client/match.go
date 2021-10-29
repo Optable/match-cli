@@ -3,7 +3,7 @@ package client
 import (
 	"context"
 
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 )
 
 func (c *AdminRpcClient) CreateMatch(ctx context.Context, req *v1.CreateExternalMatchReq) (*v1.CreateExternalMatchRes, error) {

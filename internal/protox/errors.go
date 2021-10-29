@@ -1,7 +1,7 @@
 package protox
 
 import (
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 )
 
 type Error struct {

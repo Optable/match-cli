@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 	"github.com/optable/match-cli/internal/protox"
 
 	"google.golang.org/protobuf/encoding/protojson"

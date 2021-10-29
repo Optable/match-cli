@@ -8,7 +8,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	v1 "github.com/optable/match-cli/api/v1"
+	v1 "github.com/optable/match-api/match/v1"
 
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -89,7 +89,7 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to marshal public key: %w", err)
 	}
 
-	err = client.RegisterPartner(cli.ctx, &v1.RegisterExternalPartnerReq{
+	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
 		PublicKey: base64.StdEncoding.EncodeToString(marshaledPublicKey),
 		Token:     p.Token,
 	})
