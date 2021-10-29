@@ -214,8 +214,8 @@ github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQ
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.4.1/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5uiA=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
-github.com/optable/match v0.0.0-20210723193805-7080a3f0180e h1:dFgGAVHPvdz9nNWtqWszA01f6d6d70RRfi8Rg7OOkiA=
-github.com/optable/match v0.0.0-20210723193805-7080a3f0180e/go.mod h1:YswvGbrEDofmO/uxagoSE0g/MPsXgutYl+H4KT7gC7k=
+github.com/optable/match v0.0.0-20210930181009-bddc2ea757f2 h1:Z4nXJ1QCCzZY+xo4L8woM51i54qvWEL85Kx8D9ccgq4=
+github.com/optable/match v0.0.0-20210930181009-bddc2ea757f2/go.mod h1:YswvGbrEDofmO/uxagoSE0g/MPsXgutYl+H4KT7gC7k=
 github.com/optable/match-api v1.0.0 h1:qiQ77eGC0A/oY8UT4PsQ4zT9ATMLa5cnv6BYNpK+mgM=
 github.com/optable/match-api v1.0.0/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
 github.com/packethost/packngo v0.1.1-0.20180711074735-b9cb5096f54c/go.mod h1:otzZQXgoO96RTzDB/Hycg0qZcXZsWJGJRSXbmEIJ+4M=
