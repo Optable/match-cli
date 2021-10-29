@@ -14,7 +14,7 @@ const (
 	dialTimeout     = 2 * time.Second
 )
 
-// matchConnect establishes a tls connection to the endpoint with nagle enabled.
+// Connect establishes a tls connection to the endpoint with nagle enabled.
 func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn, error) {
 	// timeout for PSI pod to pod connection
 	ctx, cancel := context.WithTimeout(ctx, connectTimeout)
@@ -29,7 +29,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 
 		var dialer net.Dialer
 		// DialContext returns an error if the context's timeout is reached.
-		// this makes sure that matchConnect would not loop forever to retry
+		// this makes sure that Connect would not loop forever to retry
 		// connections
 		dialConn, err := dialer.DialContext(dialCtx, matchTCPNetwork, endpoint)
 		if err != nil {
@@ -74,7 +74,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 	}
 }
 
-// matchListen listens to a host and returns a nagle enabled tls connection
+// Listen listens on a host and returns a nagle enabled tls connection
 func Listen(ctx context.Context, host string, cred *tls.Config) (*tls.Conn, error) {
 	// timeout for PSI pod to pod connection
 	ctx, cancel := context.WithTimeout(ctx, connectTimeout)
