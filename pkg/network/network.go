@@ -38,7 +38,7 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 				// if main context is timed out, abort operation
 				return true, nil, fmt.Errorf("dial PSI timed out: %w", ctx.Err())
 			default:
-				//retry on any dial errors
+				// retry on any dial errors
 				return false, nil, nil
 			}
 		}
@@ -56,7 +56,10 @@ func Connect(ctx context.Context, endpoint string, cred *tls.Config) (*tls.Conn,
 		// test the tls connection
 		if err = tlsConn.Handshake(); err != nil {
 			dialConn.Close()
-			return true, nil, fmt.Errorf("client: failed to establish a secure tls connection: %w", err)
+			// retry on client tls handshake faillures,
+			// this is to wait for the server to be ready when
+			// the connection is being rerouted by a proxy using SNI.
+			return false, nil, nil
 		}
 
 		// succeed in establishing a tls connection
