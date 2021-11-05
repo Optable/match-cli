@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 
 	v1 "github.com/optable/match-api/match/v1"
@@ -186,7 +187,9 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem, hostport string
 		Certificates: []tls.Certificate{tlsCertificate},
 		// We skip verification and validate that the received certificate
 		// is stricly equal to the expected one with VerifyPeerCertificate
-		InsecureSkipVerify:    true,
+		InsecureSkipVerify: true,
+		// We need ServerName because we are not using tls.Dial directly
+		ServerName:            strings.Split(hostport, ":")[0],
 		VerifyPeerCertificate: auth.NewVerifyPinnedCertificate(pinnedCert),
 	}, nil
 }
