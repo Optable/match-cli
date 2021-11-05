@@ -187,10 +187,10 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem, hostport string
 		Certificates: []tls.Certificate{tlsCertificate},
 		// We skip verification and validate that the received certificate
 		// is stricly equal to the expected one with VerifyPeerCertificate
-		InsecureSkipVerify:    true,
+		InsecureSkipVerify: true,
+		// We need ServerName because we are not using tls.Dial directly
 		ServerName:            strings.Split(hostport, ":")[0],
-		ClientAuth:            tls.RequireAnyClientCert,
-		VerifyPeerCertificate: auth.MakeVerifyPinnedCertificate(pinnedCert),
+		VerifyPeerCertificate: auth.NewVerifyPinnedCertificate(pinnedCert),
 	}, nil
 }
 

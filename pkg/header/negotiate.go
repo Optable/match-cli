@@ -16,13 +16,3 @@ func NegotiateSenderProtocol(rw io.ReadWriter) (psi.Protocol, error) {
 
 	return psi.Protocol(protocol[0]), nil
 }
-
-// NegotiateReceiverProtocol sends a list of supported PSI protocol with the sender and returns the selected one from the sender.
-func NegotiateReceiverProtocol(rw io.ReadWriter, protocols []uint8) (psi.Protocol, error) {
-	protocolRes := []byte{protocols[0]}
-	if n, err := rw.Write(protocolRes); err != nil || n != len(protocolRes) {
-		return psi.Protocol(n), fmt.Errorf("failed to send protocol negotiation message: %w", err)
-	}
-
-	return psi.Protocol(protocols[0]), nil
-}
