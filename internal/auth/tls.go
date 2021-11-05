@@ -73,10 +73,10 @@ func ParseCertificatePEM(certificatePEM string) (*x509.Certificate, error) {
 
 type PeerCertificateVerifier func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error
 
-// MakeVerifyPinnedCertificate verifies the peer certificates on the TLS handshake for one that
+// NewVerifyPinnedCertificate verifies the peer certificates on the TLS handshake for one that
 // stricly matches a previously shared pinned certificate.
 // We use it to verify ephemereal certificates exchanged through a side channel.
-func MakeVerifyPinnedCertificate(pinnedCert *x509.Certificate) PeerCertificateVerifier {
+func NewVerifyPinnedCertificate(pinnedCert *x509.Certificate) PeerCertificateVerifier {
 	return func(rawCerts [][]byte, _verifiedChains [][]*x509.Certificate) error {
 		for _, c := range rawCerts {
 			peerCert, err := x509.ParseCertificate(c)

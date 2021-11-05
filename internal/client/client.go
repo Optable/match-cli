@@ -9,13 +9,12 @@ import (
 	"strings"
 
 	v1 "github.com/optable/match-api/match/v1"
-	"github.com/optable/match-cli/internal/protox"
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 )
 
-type AdminRpcClient struct {
+type OptableRpcClient struct {
 	*http.Client
 	url         string
 	tokenSource TokenSource
@@ -31,30 +30,22 @@ func (fn TokenSourceFn) Token(req *http.Request) (string, error) {
 	return fn(req)
 }
 
-func StaticTokenSource(authToken string) TokenSource {
-	return TokenSourceFn(func(_ *http.Request) (string, error) {
-		return authToken, nil
-	})
-}
-
-func NewClient(url string, tokenSource TokenSource, client *http.Client) *AdminRpcClient {
-	if client == nil {
-		client = &http.Client{}
-	}
+func NewClient(url string, tokenSource TokenSource) *OptableRpcClient {
+	client := &http.Client{}
 
 	// Remove trailing slashes
 	url = strings.TrimRight(url, "/")
 
-	return &AdminRpcClient{Client: client, url: url, tokenSource: tokenSource}
+	return &OptableRpcClient{Client: client, url: url, tokenSource: tokenSource}
 }
 
 // Implementation details
 
-func (c *AdminRpcClient) path(method string) string {
+func (c *OptableRpcClient) path(method string) string {
 	return c.url + method
 }
 
-func (c *AdminRpcClient) Do(ctx context.Context, method string, req, res proto.Message) error {
+func (c *OptableRpcClient) Do(ctx context.Context, method string, req, res proto.Message) error {
 	var httpReqMethod string
 	if req != nil {
 		httpReqMethod = "POST"
@@ -109,10 +100,7 @@ func (c *AdminRpcClient) Do(ctx context.Context, method string, req, res proto.M
 			return err
 		}
 
-		return &protox.Error{
-			Res: res,
-			Err: fmt.Errorf(respErr.Error()+": %s", errString),
-		}
+		return fmt.Errorf(respErr.Error()+": %s", errString)
 	}
 
 	return proto.Unmarshal(body, res)

@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
+	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -94,9 +95,8 @@ func (partner *PartnerConfig) NewToken(expireAt time.Duration) (string, error) {
 }
 
 func (partner *PartnerConfig) NewClient() (*client.AdminRpcClient, error) {
-	token, err := partner.NewToken(time.Minute * 10)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create token: %w", err)
+	tokenSourceFn := func(_ *http.Request) (string, error) {
+		return partner.NewToken(time.Minute * 10)
 	}
-	return client.NewClient(partner.URL, client.StaticTokenSource(token), nil), nil
+	return client.NewClient(partner.URL, client.TokenSourceFn(tokenSourceFn)), nil
 }

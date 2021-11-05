@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"sort"
-	"strings"
 	"time"
 
 	v1 "github.com/optable/match-api/match/v1"
@@ -188,9 +187,7 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem, hostport string
 		// We skip verification and validate that the received certificate
 		// is stricly equal to the expected one with VerifyPeerCertificate
 		InsecureSkipVerify:    true,
-		ServerName:            strings.Split(hostport, ":")[0],
-		ClientAuth:            tls.RequireAnyClientCert,
-		VerifyPeerCertificate: auth.MakeVerifyPinnedCertificate(pinnedCert),
+		VerifyPeerCertificate: auth.NewVerifyPinnedCertificate(pinnedCert),
 	}, nil
 }
 

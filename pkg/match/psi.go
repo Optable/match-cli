@@ -39,33 +39,3 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 
 	return sender.Send(ctx, n, in)
 }
-
-// Receive initiate a tls connection with the match sender,
-// negotiate and establish a PSI protocol,
-// instantiate and act as receiver in the specified PSI protocol,
-// and returns the intersected identifiers or any errors encountered
-// during the match.
-func Receive(ctx context.Context, host string, cred *tls.Config, inputLen int64, identifiers <-chan []byte, protocols []uint8) ([][]byte, error) {
-	c, err := network.Listen(ctx, host, cred)
-	if err != nil {
-		return nil, err
-	}
-	defer c.Close()
-
-	// protocol negatiation step
-	selected, err := header.NegotiateReceiverProtocol(c, protocols)
-	if err != nil {
-		return nil, err
-	}
-	zerolog.Ctx(ctx).Info().Msgf("sender selected protocol: %s", selected)
-
-	receiver, err := psi.NewReceiver(selected, c)
-	if err != nil {
-		return nil, fmt.Errorf("failed creating PSI receiver %w", err)
-	}
-
-	zerolog.Ctx(ctx).Info().Msgf("created receiver to start PSI")
-
-	// intersect
-	return receiver.Intersect(ctx, inputLen, identifiers)
-}
