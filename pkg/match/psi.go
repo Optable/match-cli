@@ -43,8 +43,7 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 	// create zerologr and pass it to ctx
 	logger := zerologr.New(log)
 
-	// zerologr sets the global variable LevelFieldName to "", which makes the Levels nil for
-	// subsequent logging and display them as ??? instead of INF/DBG... in console
+	// zerologr sets the global variable LevelFieldName to ""
 	// see https://github.com/go-logr/zerologr/blob/master/zerologr.go#L76
 	// this resets the change, and preserves the pretty printing.
 	zerolog.LevelFieldName = "level"
