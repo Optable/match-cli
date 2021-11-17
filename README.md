@@ -53,7 +53,7 @@ Upon successful execution of the match, the number of the matching identifiers w
 ```
 
 ## Commands
-The `match-cli` utility provides two subcommands. The `partner` subcommand connects to a DCN to match with and identifies the sender (`match-cli` operator) as an external partner. The `match` subcommand creates a match attempt and performs the secure intersection protocol. For each subcommand, use the `--help` flag to see detailed help messages and available options.
+The `match-cli` utility provides two subcommands. The `partner` subcommand connects to a DCN to match with and identifies the sender (`match-cli` operator) as an external partner. The `match` subcommand creates a match attempt and performs the secure intersection protocol. For each subcommand, use the `--help` flag to see detailed help messages and available options. `match run` subcommand has useful flags that can configure the connection timeout and the PSI match timeout, as well as select a preferred PSI protocol. 
 
 Note that it's not currently possible to be a secure match *receiver* using the `match-cli` utility. To receive secure matches you currently must have access to an Optable DCN.
 
