@@ -18,7 +18,7 @@ import (
 // negotiate and establish a PSI protocol
 // instantiate and act as a sender in the specified PSI protocol,
 // and returns any error encountered during the match.
-func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <-chan []byte) error {
+func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProtocol psi.Protocol, n int64, in <-chan []byte) error {
 	c, err := network.Connect(ctx, endpoint, creds)
 	if err != nil {
 		return err
@@ -27,13 +27,18 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 	log.Info().Msgf("connected to partner")
 
 	// protocol negotiation step
-	protocol, err := header.NegotiateSenderProtocol(c)
+	zerolog.Ctx(ctx).Info().Msgf("negotiating protocol: %s", preferredProtocol.String())
+	selectedProtocol, err := header.NegotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}
-	log.Info().Msgf("received protocol: %s", protocol)
+	if preferredProtocol != selectedProtocol {
+		zerolog.Ctx(ctx).Info().Msgf("negotiation failed, defaulting to %s", selectedProtocol.String())
+	} else {
+		zerolog.Ctx(ctx).Info().Msgf("negotiation succeeded, starting %s", selectedProtocol.String())
+	}
 
-	sender, err := psi.NewSender(protocol, c)
+	sender, err := psi.NewSender(selectedProtocol, c)
 	if err != nil {
 		return fmt.Errorf("failed creating PSI sender %w", err)
 	}
