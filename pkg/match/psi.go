@@ -9,6 +9,8 @@ import (
 	network "github.com/optable/match-cli/pkg/network"
 	"github.com/optable/match/pkg/psi"
 
+	"github.com/go-logr/logr"
+	"github.com/go-logr/zerologr"
 	"github.com/rs/zerolog"
 )
 
@@ -21,21 +23,29 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, n int64, in <
 	if err != nil {
 		return err
 	}
-	zerolog.Ctx(ctx).Info().Msgf("connected to partner")
+	log := zerolog.Ctx(ctx)
+	log.Info().Msgf("connected to partner")
 
 	// protocol negotiation step
 	protocol, err := header.NegotiateSenderProtocol(c)
 	if err != nil {
 		return err
 	}
-	zerolog.Ctx(ctx).Info().Msgf("received protocol: %s", protocol)
+	log.Info().Msgf("received protocol: %s", protocol)
 
 	sender, err := psi.NewSender(protocol, c)
 	if err != nil {
 		return fmt.Errorf("failed creating PSI sender %w", err)
 	}
 
-	zerolog.Ctx(ctx).Info().Msgf("created sender to start PSI")
+	log.Info().Msgf("created sender to start PSI")
 
-	return sender.Send(ctx, n, in)
+	// create zerologr and pass it to ctx
+	logger := zerologr.New(log)
+
+	// zerologr sets the global variable LevelFieldName to ""
+	// see https://github.com/go-logr/zerologr/blob/master/zerologr.go#L76
+	// this resets the change, and preserves the pretty printing.
+	zerolog.LevelFieldName = "level"
+	return sender.Send(logr.NewContext(ctx, logger), n, in)
 }
