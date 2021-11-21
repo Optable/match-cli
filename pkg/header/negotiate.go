@@ -7,12 +7,22 @@ import (
 	"github.com/optable/match/pkg/psi"
 )
 
-// NegotiateSenderProtocol receives a list of receiver supported PSI protocol and returns the selected one.
-func NegotiateSenderProtocol(rw io.ReadWriter) (psi.Protocol, error) {
-	protocol := make([]byte, 1)
-	if n, err := rw.Read(protocol); err != nil || n != len(protocol) {
-		return psi.Protocol(n), fmt.Errorf("sender failed to receive PSI protocol negotiation message, got: %v, err: %w", protocol, err)
+// NegotiateSenderProtocol sends the desired protocol to the receiver.
+// The receiver responds whether the protocol is accepted or not.
+// If the protocol is not accepted, fall back to DHPSI.
+func NegotiateSenderProtocol(rw io.ReadWriter, protocol psi.Protocol) (psi.Protocol, error) {
+	if n, err := rw.Write([]uint8{uint8(protocol)}); err != nil || n != 1 {
+		return protocol, fmt.Errorf("failed to send protocol negotiation message: %w", err)
+	}
+	ack := make([]byte, 1)
+	if _, err := rw.Read(ack); err != nil {
+		return protocol, fmt.Errorf("sender failed to receive PSI protocol negotiation message, got: %v, err: %w", protocol, err)
 	}
 
-	return psi.Protocol(protocol[0]), nil
+	// Receiver doesn't accept proposed PSI so fall back on DHPSI
+	if ack[0] == 0 {
+		return psi.ProtocolDHPSI, nil
+	}
+
+	return protocol, nil
 }

@@ -28,7 +28,7 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProt
 
 	// protocol negotiation step
 	zerolog.Ctx(ctx).Info().Msgf("negotiating protocol: %s", preferredProtocol.String())
-	selectedProtocol, err := header.NegotiateSenderProtocol(c)
+	selectedProtocol, err := header.NegotiateSenderProtocol(c, preferredProtocol)
 	if err != nil {
 		return err
 	}
