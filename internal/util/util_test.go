@@ -72,10 +72,52 @@ func TestClampMatchResult(t *testing.T) {
 	received.Insights.PhoneNumbers = -2
 	received.Insights.SamsungTifas = 2
 	received.Insights.Ipv4S = 0
+	received.Insights.DifferentialPrivacyThreshold = 0
 
-	ClampMatchResult(&received, srcInsight)
+	ThresholdAndClampMatchResult(&received, srcInsight)
 	if received.Insights.Emails != srcInsight.Emails || received.Insights.PhoneNumbers != 0 ||
 		received.Insights.SamsungTifas != srcInsight.SamsungTifas || received.Insights.Ipv4S != 0 {
+		t.Fatal("clamp result failed")
+	}
+}
+
+func TestClampAndThresholdMatchResult(t *testing.T) {
+	_, srcInsight, err := count(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	received := v1.ExternalMatchResult{Insights: &v1.Insights{}}
+
+	received.Insights.Emails = 5
+	received.Insights.PhoneNumbers = -2
+	received.Insights.SamsungTifas = 2
+	received.Insights.Ipv4S = 0
+	received.Insights.DifferentialPrivacyThreshold = 2
+
+	ThresholdAndClampMatchResult(&received, srcInsight)
+	if received.Insights.Emails != srcInsight.Emails || received.Insights.Ipv4S != 0 ||
+		received.Insights.Ipv6S != 0 || received.Insights.PhoneNumbers != 0 ||
+		received.Insights.AppleIdfas != 0 || received.Insights.SamsungTifas != srcInsight.SamsungTifas ||
+		received.Insights.GoogleGaids != 0 || received.Insights.RokuRidas != 0 || received.Insights.AmazonAfais != 0 {
+		t.Fatal("clamp result failed")
+	}
+
+	src := v1.Insights{}
+	src.Emails = 1001
+	src.PhoneNumbers = 570
+	src.GoogleGaids = 2
+
+	received.Insights.Emails = 600
+	received.Insights.PhoneNumbers = 500
+	received.Insights.GoogleGaids = -2
+	received.Insights.DifferentialPrivacyThreshold = 600
+	t.Log(received.Insights.PhoneNumbers)
+
+	ThresholdAndClampMatchResult(&received, &src)
+	t.Log(received.Insights.PhoneNumbers)
+	if received.Insights.Emails != 600 || received.Insights.PhoneNumbers != 0 ||
+		received.Insights.GoogleGaids != 0 {
 		t.Fatal("clamp result failed")
 	}
 }

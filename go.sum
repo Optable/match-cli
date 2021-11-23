@@ -37,6 +37,8 @@ github.com/optable/match v0.0.0-20211119141238-b4b571f00d8b h1:x5zNGoEYCjevFQZz3
 github.com/optable/match v0.0.0-20211119141238-b4b571f00d8b/go.mod h1:FAsQ2LU5JtQCWBM8FKofE2dx4+GI+KS/XORPxK0w5o4=
 github.com/optable/match-api v1.0.0 h1:qiQ77eGC0A/oY8UT4PsQ4zT9ATMLa5cnv6BYNpK+mgM=
 github.com/optable/match-api v1.0.0/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
+github.com/optable/match-api v1.0.1-0.20211122202249-642f58cc4d19 h1:7IaJ84o+RFC1SspsUwBM7DVvKLOQGjvZ6qfH1IpBJNo=
+github.com/optable/match-api v1.0.1-0.20211122202249-642f58cc4d19/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

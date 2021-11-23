@@ -111,27 +111,41 @@ func clamp(max, n int64) int64 {
 	return n
 }
 
-func ClampMatchResult(result *v1.ExternalMatchResult, srcInsight *v1.Insights) {
+func threshold(n int64, threshold int32) int64 {
+	// no thresholding
+	if int64(threshold) == 0 {
+		return n
+	}
+	if n < int64(threshold) {
+		return 0
+	}
+	return n
+}
+
+// ThresholdAndClampMatchResult modifies the received match result insight numbers
+// by applying a threshold on the received value first, if the value is less than the threshold,
+// it will be set to 0. Afterwards, we clamp the thresholded value.
+func ThresholdAndClampMatchResult(result *v1.ExternalMatchResult, srcInsight *v1.Insights) {
 	for idkind := range v1.IdKind_name {
 		switch v1.IdKind(idkind) {
 		case v1.IdKind_ID_KIND_EMAIL_HASH:
-			result.Insights.Emails = clamp(srcInsight.Emails, result.Insights.Emails)
+			result.Insights.Emails = clamp(srcInsight.Emails, threshold(result.Insights.Emails, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_PHONE_NUMBER:
-			result.Insights.PhoneNumbers = clamp(srcInsight.PhoneNumbers, result.Insights.PhoneNumbers)
+			result.Insights.PhoneNumbers = clamp(srcInsight.PhoneNumbers, threshold(result.Insights.PhoneNumbers, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_IPV4:
-			result.Insights.Ipv4S = clamp(srcInsight.Ipv4S, result.Insights.Ipv4S)
+			result.Insights.Ipv4S = clamp(srcInsight.Ipv4S, threshold(result.Insights.Ipv4S, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_IPV6:
-			result.Insights.Ipv6S = clamp(srcInsight.Ipv6S, result.Insights.Ipv6S)
+			result.Insights.Ipv6S = clamp(srcInsight.Ipv6S, threshold(result.Insights.Ipv6S, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_APPLE_IDFA:
-			result.Insights.AppleIdfas = clamp(srcInsight.AppleIdfas, result.Insights.AppleIdfas)
+			result.Insights.AppleIdfas = clamp(srcInsight.AppleIdfas, threshold(result.Insights.AppleIdfas, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_GOOGLE_GAID:
-			result.Insights.GoogleGaids = clamp(srcInsight.GoogleGaids, result.Insights.GoogleGaids)
+			result.Insights.GoogleGaids = clamp(srcInsight.GoogleGaids, threshold(result.Insights.GoogleGaids, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_ROKU_RIDA:
-			result.Insights.RokuRidas = clamp(srcInsight.RokuRidas, result.Insights.RokuRidas)
+			result.Insights.RokuRidas = clamp(srcInsight.RokuRidas, threshold(result.Insights.RokuRidas, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_SAMSUNG_TIFA:
-			result.Insights.SamsungTifas = clamp(srcInsight.SamsungTifas, result.Insights.SamsungTifas)
+			result.Insights.SamsungTifas = clamp(srcInsight.SamsungTifas, threshold(result.Insights.SamsungTifas, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_AMAZON_AFAI:
-			result.Insights.AmazonAfais = clamp(srcInsight.AmazonAfais, result.Insights.AmazonAfais)
+			result.Insights.AmazonAfais = clamp(srcInsight.AmazonAfais, threshold(result.Insights.AmazonAfais, result.Insights.DifferentialPrivacyThreshold))
 		}
 	}
 }

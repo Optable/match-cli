@@ -305,6 +305,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	info(ctx).Msg("got results from /match/get-result")
 
-	util.ClampMatchResult(result, srcInsight)
+	// apply threshold on received insights and clamp it with src insight counts
+	util.ThresholdAndClampMatchResult(result, srcInsight)
 	return printJson(matchResultFromProto(result))
 }
