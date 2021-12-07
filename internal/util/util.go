@@ -4,43 +4,27 @@ import (
 	"bufio"
 	"context"
 	"io"
-	"os"
 	"strings"
 
 	v1 "github.com/optable/match-api/match/v1"
-	"github.com/rs/zerolog"
 )
 
 //GetInputChannel reads identifiers from a file to a channel
-func GenInputChannel(ctx context.Context, f *os.File) (int64, *v1.Insights, <-chan []byte, error) {
-	n, insight, err := count(f)
+func GenInputChannel(ctx context.Context, f io.Reader) (int64, *v1.Insights, <-chan []byte, error) {
+	n, elementsInFile, insight, err := count(f)
 	if err != nil {
 		return n, nil, nil, err
 	}
-
-	// rewind
-	f.Seek(0, io.SeekStart)
 
 	// make the output channel
 	identifiers := make(chan []byte)
 
 	// wrap f in a bufio reader
-	r := bufio.NewReader(f)
 	go func() {
 		defer close(identifiers)
-		for i := int64(0); i < n; i++ {
-			// read next line
-			identifier, err := safeReadLine(r)
-			if len(identifier) != 0 {
-				// push to channel
-				identifiers <- identifier
-			}
-			if err != nil {
-				if err != io.EOF {
-					zerolog.Ctx(ctx).Error().Err(err).Msg("error reading identifiers: %v")
-				}
-				return
-			}
+		for identifier := range elementsInFile {
+			// push to channel
+			identifiers <- []byte(identifier)
 		}
 	}()
 
@@ -49,12 +33,17 @@ func GenInputChannel(ctx context.Context, f *os.File) (int64, *v1.Insights, <-ch
 
 // count returns number of lines in file, as well as the
 // number of each id type
-func count(r io.Reader) (int64, *v1.Insights, error) {
-	var n int64
+func count(r io.Reader) (int64, map[string]bool, *v1.Insights, error) {
+	var nUnique int64
 	var insight v1.Insights
+	visited := make(map[string]bool)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		s := string(scanner.Bytes())
+		if _, found := visited[s]; found {
+			continue
+		}
+		// ignoring the invalid types
 		switch {
 		case strings.HasPrefix(s, "e:"):
 			insight.Emails++
@@ -74,28 +63,18 @@ func count(r io.Reader) (int64, *v1.Insights, error) {
 			insight.SamsungTifas++
 		case strings.HasPrefix(s, "f:"):
 			insight.AmazonAfais++
+		default:
+			continue
 		}
-		//TODO: do we handle invalid prefix type?
-		n++
+		visited[s] = true
+		nUnique++
 	}
 
 	if err := scanner.Err(); err != nil {
-		return n, nil, err
+		return nUnique, nil, nil, err
 	}
 
-	return n, &insight, nil
-}
-
-// safeReadLine reads each line until a newline character and returns
-// read bytes.
-func safeReadLine(r *bufio.Reader) (line []byte, err error) {
-	// read until newline
-	line, err = r.ReadBytes('\n')
-	if len(line) > 1 {
-		// strip the \n
-		line = line[:len(line)-1]
-	}
-	return
+	return nUnique, visited, &insight, nil
 }
 
 // clamp changes the received numbers from the partner which can have differential privacy noise in them,

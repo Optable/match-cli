@@ -269,7 +269,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	if err != nil {
 		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}
-	info(ctx).Msgf("loaded %d records from %s, with the following breakdown: %v", n, m.File.Name(), srcInsight)
+	info(ctx).Msgf("loaded %d unique records from %s, with the following breakdown: %v", n, m.File.Name(), srcInsight)
 
 	partner := cli.config.findPartner(m.Partner)
 	if partner == nil {
