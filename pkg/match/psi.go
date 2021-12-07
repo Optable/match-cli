@@ -18,7 +18,7 @@ import (
 // negotiate and establish a PSI protocol
 // instantiate and act as a sender in the specified PSI protocol,
 // and returns any error encountered during the match.
-func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProtocol psi.Protocol, n int64, in <-chan []byte) error {
+func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProtocols []psi.Protocol, n int64, in <-chan []byte) error {
 	c, err := network.Connect(ctx, endpoint, creds)
 	if err != nil {
 		return err
@@ -27,15 +27,28 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProt
 	log.Info().Msgf("connected to partner")
 
 	// protocol negotiation step
-	zerolog.Ctx(ctx).Info().Msgf("negotiating protocol: %s", preferredProtocol.String())
-	selectedProtocol, err := header.NegotiateSenderProtocol(c, preferredProtocol)
+	protocolStrings := make([]string, len(preferredProtocols))
+	for i, p := range preferredProtocols {
+		protocolStrings[i] = p.String()
+	}
+	zerolog.Ctx(ctx).Info().Msgf("negotiating protocol: %v", protocolStrings)
+	selectedProtocol, err := header.NegotiateSenderProtocol(c, preferredProtocols)
 	if err != nil {
 		return err
 	}
-	if preferredProtocol != selectedProtocol {
-		zerolog.Ctx(ctx).Info().Msgf("negotiation failed, defaulting to %s", selectedProtocol.String())
+
+	var negotiationSuccess bool
+	for _, p := range preferredProtocols {
+		if selectedProtocol == p {
+			negotiationSuccess = true
+			break
+		}
+	}
+
+	if negotiationSuccess {
+		zerolog.Ctx(ctx).Info().Msgf("negotiation succeeded, starting %s", selectedProtocol)
 	} else {
-		zerolog.Ctx(ctx).Info().Msgf("negotiation succeeded, starting %s", selectedProtocol.String())
+		zerolog.Ctx(ctx).Info().Msgf("negotiation failed, defaulting to %s", selectedProtocol)
 	}
 
 	sender, err := psi.NewSender(selectedProtocol, c)

@@ -40,7 +40,7 @@ type (
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
-		Protocol    string        `default:"dhpsi" enum:"bpsi,npsi,dhpsi,kkrt" help:"Preferred PSI protocol"`
+		Protocol    string        `default:"kkrtpsi" enum:"bpsi,npsi,dhpsi,kkrtpsi" help:"Preferred PSI protocol"`
 	}
 
 	MatchCmd struct {
@@ -250,14 +250,12 @@ func psiProtocolFromString(protocol string) psi.Protocol {
 		return psi.ProtocolBPSI
 	case "npsi":
 		return psi.ProtocolNPSI
-	case "kkrt":
-		// TODO: remove comment when KKRT is merged.
-		// return psi.ProtocolKKRTPSI
-		return 3
 	case "dhpsi":
+		return psi.ProtocolDHPSI
+	case "kkrtpsi":
 		fallthrough
 	default:
-		return psi.ProtocolDHPSI
+		return psi.ProtocolKKRTPSI
 	}
 }
 
@@ -307,7 +305,9 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create TLS config for PSI: %w", err)
 	}
 
-	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, psiProtocolFromString(m.Protocol), n, records); err != nil {
+	// in the future, a slice could be processed here
+	preferredProtocols := []psi.Protocol{psiProtocolFromString(m.Protocol)}
+	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, preferredProtocols, n, records); err != nil {
 		return fmt.Errorf("failed to run PSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed PSI")

@@ -7,17 +7,31 @@ import (
 	"github.com/optable/match/pkg/psi"
 )
 
-// NegotiateSenderProtocol sends the desired protocol to the receiver.
-// The receiver responds with the same protocol if it is accepted.
-// If the protocol is not accepted, the receiver will send back the default protocol.
-func NegotiateSenderProtocol(rw io.ReadWriter, protocol psi.Protocol) (psi.Protocol, error) {
-	if n, err := rw.Write([]uint8{uint8(protocol)}); err != nil || n != 1 {
-		return protocol, fmt.Errorf("failed to send protocol negotiation message: %w", err)
+// NegotiateSenderProtocol takes the sender's slice of protocols which
+// are ordered in terms of desirability. First send the length of the
+// protocols slice to receiver and then send the slice itself. The
+// receiver should respond with the first element that is present in
+// both the sender's and receiver's preferred protocol slices. If there
+// is no intersection between the slices, the receiver will respond
+// with the default protocol.
+func NegotiateSenderProtocol(rw io.ReadWriter, protocols []psi.Protocol) (psi.Protocol, error) {
+	// write length of preferred protocol slice
+	if _, err := rw.Write([]byte{byte(len(protocols))}); err != nil {
+		return psi.ProtocolUnsupported, fmt.Errorf("failed to send number of desired protocols: %w", err)
 	}
-	recProtocol := make([]byte, 1)
-	if _, err := rw.Read(recProtocol); err != nil {
-		return protocol, fmt.Errorf("failed to receive PSI protocol negotiation message, got: %v, err: %w", protocol, err)
+	// write actual slice of preferred protocols
+	protocolMessage := make([]byte, len(protocols))
+	for p, i := range protocols {
+		protocolMessage[i] = byte(p)
+	}
+	if _, err := rw.Write(protocolMessage); err != nil {
+		return psi.ProtocolUnsupported, fmt.Errorf("failed to send protocol negotiation message: %w", err)
+	}
+	// read protocol decision from receiver
+	protocolDecision := make([]byte, 1)
+	if _, err := rw.Read(protocolDecision); err != nil {
+		return psi.ProtocolUnsupported, fmt.Errorf("failed to receive PSI protocol decision, got: %v, err: %w", protocolDecision, err)
 	}
 
-	return psi.Protocol(recProtocol[0]), nil
+	return psi.Protocol(protocolDecision[0]), nil
 }
