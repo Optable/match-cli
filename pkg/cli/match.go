@@ -40,7 +40,7 @@ type (
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
-		Protocol    string        `default:"kkrtpsi" enum:"bpsi,npsi,dhpsi,kkrtpsi" help:"Preferred PSI protocol"`
+		Protocol    string        `default:"dhpsi" enum:"bpsi,npsi,kkrtpsi,dhpsi" help:"Preferred PSI protocol"`
 	}
 
 	MatchCmd struct {
@@ -250,12 +250,12 @@ func psiProtocolFromString(protocol string) psi.Protocol {
 		return psi.ProtocolBPSI
 	case "npsi":
 		return psi.ProtocolNPSI
-	case "dhpsi":
-		return psi.ProtocolDHPSI
 	case "kkrtpsi":
+		return psi.ProtocolKKRTPSI
+	case "dhpsi":
 		fallthrough
 	default:
-		return psi.ProtocolKKRTPSI
+		return psi.ProtocolDHPSI
 	}
 }
 

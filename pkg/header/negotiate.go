@@ -21,7 +21,7 @@ func NegotiateSenderProtocol(rw io.ReadWriter, protocols []psi.Protocol) (psi.Pr
 	}
 	// write actual slice of preferred protocols
 	protocolMessage := make([]byte, len(protocols))
-	for p, i := range protocols {
+	for i, p := range protocols {
 		protocolMessage[i] = byte(p)
 	}
 	if _, err := rw.Write(protocolMessage); err != nil {
