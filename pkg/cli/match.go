@@ -40,7 +40,7 @@ type (
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
-		Protocol    string        `default:"dhpsi" enum:"bpsi,npsi,kkrtpsi,dhpsi" help:"Preferred PSI protocol"`
+		Protocol    string        `default:"dhpsi" enum:"kkrtpsi,dhpsi" help:"Preferred PSI protocol"`
 	}
 
 	MatchCmd struct {
@@ -246,10 +246,6 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 
 func psiProtocolFromString(protocol string) psi.Protocol {
 	switch protocol {
-	case "bpsi":
-		return psi.ProtocolBPSI
-	case "npsi":
-		return psi.ProtocolNPSI
 	case "kkrtpsi":
 		return psi.ProtocolKKRTPSI
 	case "dhpsi":

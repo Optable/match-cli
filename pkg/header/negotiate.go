@@ -13,7 +13,7 @@ import (
 // receiver should respond with the first element that is present in
 // both the sender's and receiver's preferred protocol slices. If there
 // is no intersection between the slices, the receiver will respond
-// with the default protocol.
+// with psi.ProtocolUnsupported and the operation will fail.
 func NegotiateSenderProtocol(rw io.ReadWriter, protocols []psi.Protocol) (psi.Protocol, error) {
 	// write length of preferred protocol slice
 	if _, err := rw.Write([]byte{byte(len(protocols))}); err != nil {
@@ -31,6 +31,11 @@ func NegotiateSenderProtocol(rw io.ReadWriter, protocols []psi.Protocol) (psi.Pr
 	protocolDecision := make([]byte, 1)
 	if _, err := rw.Read(protocolDecision); err != nil {
 		return psi.ProtocolUnsupported, fmt.Errorf("failed to receive PSI protocol decision, got: %v, err: %w", protocolDecision, err)
+	}
+
+	// if there were no matches, the receiver responds with the unsupported protocol
+	if psi.Protocol(protocolDecision[0]) == psi.ProtocolUnsupported {
+		return psi.ProtocolUnsupported, fmt.Errorf("failed protocol negotiation, unsupported protocol: %v", protocols)
 	}
 
 	return psi.Protocol(protocolDecision[0]), nil

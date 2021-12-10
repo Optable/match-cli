@@ -33,19 +33,7 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProt
 		return err
 	}
 
-	var negotiationSuccess bool
-	for _, p := range preferredProtocols {
-		if selectedProtocol == p {
-			negotiationSuccess = true
-			break
-		}
-	}
-
-	if negotiationSuccess {
-		zerolog.Ctx(ctx).Info().Msgf("negotiation succeeded, starting %s", selectedProtocol)
-	} else {
-		zerolog.Ctx(ctx).Info().Msgf("negotiation failed, defaulting to %s", selectedProtocol)
-	}
+	zerolog.Ctx(ctx).Info().Msgf("negotiation succeeded, starting %s", selectedProtocol)
 
 	sender, err := psi.NewSender(selectedProtocol, c)
 	if err != nil {
@@ -57,9 +45,5 @@ func Send(ctx context.Context, endpoint string, creds *tls.Config, preferredProt
 	// create zerologr and pass it to ctx
 	logger := zerologr.New(log)
 
-	// zerologr sets the global variable LevelFieldName to ""
-	// see https://github.com/go-logr/zerologr/blob/master/zerologr.go#L76
-	// this resets the change, and preserves the pretty printing.
-	zerolog.LevelFieldName = "level"
 	return sender.Send(logr.NewContext(ctx, logger), n, in)
 }
