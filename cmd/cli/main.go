@@ -12,11 +12,19 @@ Optable Match CLI tool.
 
 func main() {
 	var c cli.Cli
-	kongCtx := kong.Parse(&c, kong.Description(description), kong.UsageOnError())
+	kongCtx := kong.Parse(
+		&c,
+		kong.Description(description),
+		kong.UsageOnError(),
+		&kong.HelpOptions{
+			Compact:             false,
+			NoExpandSubcommands: true,
+			WrapUpperBound:      80,
+		},
+	)
 
 	cliCtx, err := c.NewContext()
 	kongCtx.FatalIfErrorf(err)
 
-	err = kongCtx.Run(cliCtx)
-	kongCtx.FatalIfErrorf(err)
+	kongCtx.FatalIfErrorf(kongCtx.Run(cliCtx))
 }

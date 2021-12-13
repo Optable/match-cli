@@ -13,6 +13,7 @@ import (
 	"github.com/optable/match-cli/internal/auth"
 	"github.com/optable/match-cli/internal/util"
 	"github.com/optable/match-cli/pkg/match"
+	"github.com/optable/match/pkg/psi"
 
 	"github.com/segmentio/ksuid"
 	"google.golang.org/protobuf/proto"
@@ -39,6 +40,7 @@ type (
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
 		MatchID     string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
+		Protocol    string        `default:"dhpsi" enum:"kkrtpsi,dhpsi" help:"Preferred PSI protocol"`
 	}
 
 	MatchCmd struct {
@@ -242,6 +244,17 @@ func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResult
 	}
 }
 
+func psiProtocolFromString(protocol string) psi.Protocol {
+	switch protocol {
+	case "kkrtpsi":
+		return psi.ProtocolKKRTPSI
+	case "dhpsi":
+		fallthrough
+	default:
+		return psi.ProtocolDHPSI
+	}
+}
+
 // Run authenticates with the partner and runs the PSI match attempt.
 // The result of the match is printed on success.
 func (m *MatchRunCmd) Run(cli *CliContext) error {
@@ -288,7 +301,9 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create TLS config for PSI: %w", err)
 	}
 
-	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, n, records); err != nil {
+	// in the future, a slice could be processed here
+	preferredProtocols := []psi.Protocol{psiProtocolFromString(m.Protocol)}
+	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, preferredProtocols, n, records); err != nil {
 		return fmt.Errorf("failed to run PSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed PSI")
