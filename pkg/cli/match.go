@@ -265,7 +265,14 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	defer cancel()
 	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchID, m.RunTimeout)
 
-	n, srcInsight, records, err := util.GenInputChannel(ctx, m.File)
+	uniqueElementsInFile, err := util.GetUniqueElementsInFile(m.File)
+	if err != nil {
+		return fmt.Errorf("failed to load unique elements in file %s : %w", m.File.Name(), err)
+	}
+
+	srcInsight, uniqueIdentifiersInFile, n := util.GetInsightsAndIdentifiers(uniqueElementsInFile)
+
+	records, err := util.GetInputChannel(ctx, uniqueIdentifiersInFile)
 	if err != nil {
 		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}

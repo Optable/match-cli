@@ -25,35 +25,21 @@ g:5a4d35a4d35as4d3a
 f:21312230udklsjfaklhjda
 s:alhjklashsjklfahs23e0923ur420`
 
-func TestCount(t *testing.T) {
-	n, elementsInFile, insight, err := count(strings.NewReader("e:920d43ae6aebac63291f0476a63f9dc3d3cd7d3b071673c7f145f58e893740f4\ns:alhjklashsjklfahs23e0923ur420"))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	identifier1 := "e:920d43ae6aebac63291f0476a63f9dc3d3cd7d3b071673c7f145f58e893740f4"
-	if val, found := elementsInFile[string(identifier1)]; !found || !val {
-		t.Fatal("count failed")
-	}
-
-	identifier2 := "s:alhjklashsjklfahs23e0923ur420"
-	if val, found := elementsInFile[string(identifier2)]; !found || !val {
-		t.Fatal("count failed")
-	}
-
-	if n != 2 || insight.Emails != 1 || insight.SamsungTifas != 1 {
-		t.Fatalf("count failed")
-	}
-
-	n, _, insight, err = count(strings.NewReader(input))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if n != 14 || insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
-		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
-		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 {
-		t.Fatalf("count failed")
-	}
+var inputMap = map[string]bool{
+	"i4:8.8.8.8":     true,
+	"p:18055554321":  true,
+	"i4:1.1.1.1":     true,
+	"i6:1.1.1.1.1.1": true,
+	"p:12125551122":  true,
+	"e:920d0b248f5eea3b9c4838867d8dc8392e8522f2f89f7dc67a3f0e3d52ba2c14": true,
+	"e:920d1212465e48d839b47102826b8c574959e5fcc6bf0fe4f888811a6d14c8de": true,
+	"a:214as2d4asasdasd": true,
+	"e:920d43ae6aebac63291f0476a63f9dc3d3cd7d3b071673c7f145f58e893740f4": true,
+	"r:4as6d4a3s4dasdad":              true,
+	"g:a2354ds35as4d3asd":             true,
+	"g:5a4d35a4d35as4d3a":             true,
+	"f:21312230udklsjfaklhjda":        true,
+	"s:alhjklashsjklfahs23e0923ur420": true,
 }
 
 func TestClamp(t *testing.T) {
@@ -75,11 +61,7 @@ func TestClamp(t *testing.T) {
 }
 
 func TestClampMatchResult(t *testing.T) {
-	_, _, srcInsight, err := count(strings.NewReader(input))
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	srcInsight, _, _ := GetInsightsAndIdentifiers(inputMap)
 	received := v1.ExternalMatchResult{Insights: &v1.Insights{}}
 
 	received.Insights.Emails = 5
@@ -96,10 +78,7 @@ func TestClampMatchResult(t *testing.T) {
 }
 
 func TestClampAndThresholdMatchResult(t *testing.T) {
-	_, _, srcInsight, err := count(strings.NewReader(input))
-	if err != nil {
-		t.Fatal(err)
-	}
+	srcInsight, _, _ := GetInsightsAndIdentifiers(inputMap)
 
 	received := v1.ExternalMatchResult{Insights: &v1.Insights{}}
 
@@ -137,42 +116,59 @@ func TestClampAndThresholdMatchResult(t *testing.T) {
 }
 
 func TestGetInputChannel(t *testing.T) {
-	inputData := strings.NewReader(input)
-	n, insight, records, err := GenInputChannel(context.Background(), inputData)
+	records, err := GetInputChannel(context.Background(), inputMap)
 	if err != nil {
 		t.Fatalf("failed creating input channel from temporary input Data for testing: %s", err)
-	}
-
-	expectedOutput := map[string]bool{
-		"i4:8.8.8.8":     true,
-		"p:18055554321":  true,
-		"i4:1.1.1.1":     true,
-		"i6:1.1.1.1.1.1": true,
-		"p:12125551122":  true,
-		"e:920d0b248f5eea3b9c4838867d8dc8392e8522f2f89f7dc67a3f0e3d52ba2c14": true,
-		"e:920d1212465e48d839b47102826b8c574959e5fcc6bf0fe4f888811a6d14c8de": true,
-		"a:214as2d4asasdasd": true,
-		"e:920d43ae6aebac63291f0476a63f9dc3d3cd7d3b071673c7f145f58e893740f4": true,
-		"r:4as6d4a3s4dasdad":              true,
-		"g:a2354ds35as4d3asd":             true,
-		"g:5a4d35a4d35as4d3a":             true,
-		"f:21312230udklsjfaklhjda":        true,
-		"s:alhjklashsjklfahs23e0923ur420": true,
 	}
 
 	chanLength := int64(0)
 
 	for identifier := range records {
-		if _, ok := expectedOutput[string(identifier)]; !ok {
+		if _, found := inputMap[string(identifier)]; !found {
 			t.Fatal("unexpected output")
 		}
 		chanLength++
 	}
 
-	if n != 14 || insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
-		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
-		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 || n != chanLength {
+	if chanLength != 14 {
 		t.Fatal("get input channel failed")
 	}
+}
 
+func TestGetUniqueElementsInFile(t *testing.T) {
+	inputData := strings.NewReader(input)
+	uniqueElementsInFile, err := GetUniqueElementsInFile(inputData)
+	if err != nil {
+		t.Fatalf("failed creating input channel from temporary input Data for testing: %s", err)
+	}
+
+	mapLength := int64(0)
+
+	for identifier := range uniqueElementsInFile {
+		if _, found := inputMap[string(identifier)]; !found {
+			t.Fatal("unexpected output")
+		}
+		mapLength++
+	}
+
+	if mapLength != 14 {
+		t.Fatal("get unique elements failed")
+	}
+}
+
+func TestGetInsightsAndIdentifiers(t *testing.T) {
+	inputDataWithInvalidIdentifiers := inputMap
+	inputDataWithInvalidIdentifiers["invalid_identifier"] = true
+
+	insight, uniqueIdentifiers, n := GetInsightsAndIdentifiers(inputDataWithInvalidIdentifiers)
+
+	if n != 14 || insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
+		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
+		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 {
+		t.Fatalf("get insights and identifiers failed")
+	}
+
+	if _, found := uniqueIdentifiers["invalid_identifier"]; found {
+		t.Fatalf("get insights and identifiers failed")
+	}
 }
