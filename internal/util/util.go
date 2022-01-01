@@ -9,6 +9,8 @@ import (
 	v1 "github.com/optable/match-api/match/v1"
 )
 
+var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:"}
+
 //GetInputChannel reads identifiers from a file to a channel
 func GetInputChannel(ctx context.Context, uniqueIdentifiersInFile map[string]bool) (<-chan []byte, error) {
 	// make the output channel
@@ -24,53 +26,52 @@ func GetInputChannel(ctx context.Context, uniqueIdentifiersInFile map[string]boo
 	return identifiers, nil
 }
 
-// returns insights and valid unique identifiers
-func GetInsightsAndIdentifiers(uniqueElementsInFile map[string]bool) (*v1.Insights, map[string]bool, int64) {
-	uniqueIdentifiersInFile := make(map[string]bool)
+// returns insights for the identifiers in the file
+func GetInsights(uniqueIdentifiersInFile map[string]bool) *v1.Insights {
 	var insight v1.Insights
-	var n int64 = 0
-	for identifier := range uniqueElementsInFile {
+	for identifier := range uniqueIdentifiersInFile {
 		switch {
-		case strings.HasPrefix(identifier, "e:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["emails"]):
 			insight.Emails++
-		case strings.HasPrefix(identifier, "p:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["phoneNumbers"]):
 			insight.PhoneNumbers++
-		case strings.HasPrefix(identifier, "i4:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["ipv4S"]):
 			insight.Ipv4S++
-		case strings.HasPrefix(identifier, "i6:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["ipv6S"]):
 			insight.Ipv6S++
-		case strings.HasPrefix(identifier, "a:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["appleIdfas"]):
 			insight.AppleIdfas++
-		case strings.HasPrefix(identifier, "g:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["googleGaids"]):
 			insight.GoogleGaids++
-		case strings.HasPrefix(identifier, "r:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["rokuRidas"]):
 			insight.RokuRidas++
-		case strings.HasPrefix(identifier, "s:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["samsungTifas"]):
 			insight.SamsungTifas++
-		case strings.HasPrefix(identifier, "f:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["amazonAfais"]):
 			insight.AmazonAfais++
-		default:
-			continue
 		}
-		uniqueIdentifiersInFile[identifier] = true
-		n++
 	}
-	return &insight, uniqueIdentifiersInFile, n
+	return &insight
 }
 
-// returns unique elements in the file
-func GetUniqueElementsInFile(r io.Reader) (map[string]bool, error) {
-	uniqueElementsInFile := make(map[string]bool)
+// returns unique identifiers in the file
+func GetUniqueIdentifiersInFile(r io.Reader) (map[string]bool, error) {
+	uniqueIdentifiersInFile := make(map[string]bool)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-		uniqueElementsInFile[string(scanner.Bytes())] = true
+		element := string(scanner.Bytes())
+		for _, validPrefix := range validIdentifiersPrefix {
+			if strings.HasPrefix(element, validPrefix) {
+				uniqueIdentifiersInFile[element] = true
+			}
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
-	return uniqueElementsInFile, nil
+	return uniqueIdentifiersInFile, nil
 }
 
 // clamp changes the received numbers from the partner which can have differential privacy noise in them,

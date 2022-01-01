@@ -23,7 +23,8 @@ r:4as6d4a3s4dasdad
 g:a2354ds35as4d3asd
 g:5a4d35a4d35as4d3a
 f:21312230udklsjfaklhjda
-s:alhjklashsjklfahs23e0923ur420`
+s:alhjklashsjklfahs23e0923ur420
+invalidIdentifier`
 
 var inputMap = map[string]bool{
 	"i4:8.8.8.8":     true,
@@ -61,7 +62,7 @@ func TestClamp(t *testing.T) {
 }
 
 func TestClampMatchResult(t *testing.T) {
-	srcInsight, _, _ := GetInsightsAndIdentifiers(inputMap)
+	srcInsight := GetInsights(inputMap)
 	received := v1.ExternalMatchResult{Insights: &v1.Insights{}}
 
 	received.Insights.Emails = 5
@@ -78,7 +79,7 @@ func TestClampMatchResult(t *testing.T) {
 }
 
 func TestClampAndThresholdMatchResult(t *testing.T) {
-	srcInsight, _, _ := GetInsightsAndIdentifiers(inputMap)
+	srcInsight := GetInsights(inputMap)
 
 	received := v1.ExternalMatchResult{Insights: &v1.Insights{}}
 
@@ -135,40 +136,34 @@ func TestGetInputChannel(t *testing.T) {
 	}
 }
 
-func TestGetUniqueElementsInFile(t *testing.T) {
+func TestGetUniqueIdentifiersInFile(t *testing.T) {
 	inputData := strings.NewReader(input)
-	uniqueElementsInFile, err := GetUniqueElementsInFile(inputData)
+	uniqueIdentifiersInFile, err := GetUniqueIdentifiersInFile(inputData)
 	if err != nil {
 		t.Fatalf("failed creating input channel from temporary input Data for testing: %s", err)
 	}
 
-	mapLength := int64(0)
-
-	for identifier := range uniqueElementsInFile {
+	for identifier := range uniqueIdentifiersInFile {
 		if _, found := inputMap[string(identifier)]; !found {
 			t.Fatal("unexpected output")
 		}
-		mapLength++
 	}
 
-	if mapLength != 14 {
+	if _, found := uniqueIdentifiersInFile["invalidIdentifier"]; found {
+		t.Fatal("Invalid identifier found")
+	}
+
+	if len(uniqueIdentifiersInFile) != 14 {
 		t.Fatal("get unique elements failed")
 	}
 }
 
-func TestGetInsightsAndIdentifiers(t *testing.T) {
-	inputDataWithInvalidIdentifiers := inputMap
-	inputDataWithInvalidIdentifiers["invalid_identifier"] = true
+func TestGetInsights(t *testing.T) {
+	insight := GetInsights(inputMap)
 
-	insight, uniqueIdentifiers, n := GetInsightsAndIdentifiers(inputDataWithInvalidIdentifiers)
-
-	if n != 14 || insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
+	if insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
 		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
 		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 {
-		t.Fatalf("get insights and identifiers failed")
-	}
-
-	if _, found := uniqueIdentifiers["invalid_identifier"]; found {
 		t.Fatalf("get insights and identifiers failed")
 	}
 }
