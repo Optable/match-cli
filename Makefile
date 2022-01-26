@@ -12,7 +12,7 @@ build:
 	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.version=${BUILD_VERSION}" -o bin/match-cli cmd/cli/main.go
 
 .PHONY: release
-release: darwin-amd64 darwin-arm linux windows
+release: darwin-amd64 darwin-arm64 linux windows
 
 .PHONY: darwin-amd64
 darwin-amd64:
@@ -20,8 +20,8 @@ darwin-amd64:
  	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 make build ;\
 	mkdir -p release && cp bin/match-cli release/match-cli-darwin-amd64
 
-.PHONY: darwin-arm
-darwin-arm:
+.PHONY: darwin-arm64
+darwin-arm64:
 	make clean-bin ;\
  	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 make build ;\
 	mkdir -p release && cp bin/match-cli release/match-cli-darwin-arm64
