@@ -265,11 +265,18 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	defer cancel()
 	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchID, m.RunTimeout)
 
-	n, srcInsight, records, err := util.GenInputChannel(ctx, m.File)
+	uniqueIdentifiersInFile, err := util.GetUniqueIdentifiersInFile(m.File)
+	if err != nil {
+		return fmt.Errorf("failed to load unique identifiers in file %s : %w", m.File.Name(), err)
+	}
+
+	srcInsight := util.GetInsights(uniqueIdentifiersInFile)
+
+	records, err := util.GetInputChannel(ctx, uniqueIdentifiersInFile)
 	if err != nil {
 		return fmt.Errorf("failed to load record file %s : %w", m.File.Name(), err)
 	}
-	info(ctx).Msgf("loaded %d records from %s, with the following breakdown: %v", n, m.File.Name(), srcInsight)
+	info(ctx).Msgf("loaded %d unique records from %s, with the following breakdown: %v", len(uniqueIdentifiersInFile), m.File.Name(), srcInsight)
 
 	partner := cli.config.findPartner(m.Partner)
 	if partner == nil {
@@ -303,7 +310,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	// in the future, a slice could be processed here
 	preferredProtocols := []psi.Protocol{psiProtocolFromString(m.Protocol)}
-	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, preferredProtocols, n, records); err != nil {
+	if err = match.Send(ctx, runMatchRes.Endpoint, tlsConfig, preferredProtocols, int64(len(uniqueIdentifiersInFile)), records); err != nil {
 		return fmt.Errorf("failed to run PSI: %w", err)
 	}
 	info(ctx).Msg("successfully completed PSI")

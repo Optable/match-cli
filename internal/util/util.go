@@ -4,98 +4,74 @@ import (
 	"bufio"
 	"context"
 	"io"
-	"os"
 	"strings"
 
 	v1 "github.com/optable/match-api/match/v1"
-	"github.com/rs/zerolog"
 )
 
+var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:"}
+
 //GetInputChannel reads identifiers from a file to a channel
-func GenInputChannel(ctx context.Context, f *os.File) (int64, *v1.Insights, <-chan []byte, error) {
-	n, insight, err := count(f)
-	if err != nil {
-		return n, nil, nil, err
-	}
-
-	// rewind
-	f.Seek(0, io.SeekStart)
-
+func GetInputChannel(ctx context.Context, uniqueIdentifiersInFile map[string]bool) (<-chan []byte, error) {
 	// make the output channel
 	identifiers := make(chan []byte)
-
-	// wrap f in a bufio reader
-	r := bufio.NewReader(f)
 	go func() {
 		defer close(identifiers)
-		for i := int64(0); i < n; i++ {
-			// read next line
-			identifier, err := safeReadLine(r)
-			if len(identifier) != 0 {
-				// push to channel
-				identifiers <- identifier
-			}
-			if err != nil {
-				if err != io.EOF {
-					zerolog.Ctx(ctx).Error().Err(err).Msg("error reading identifiers: %v")
-				}
-				return
-			}
+		for identifier := range uniqueIdentifiersInFile {
+			// push to channel
+			identifiers <- []byte(identifier)
 		}
 	}()
 
-	return n, insight, identifiers, nil
+	return identifiers, nil
 }
 
-// count returns number of lines in file, as well as the
-// number of each id type
-func count(r io.Reader) (int64, *v1.Insights, error) {
-	var n int64
+// returns insights for the identifiers in the file
+func GetInsights(uniqueIdentifiersInFile map[string]bool) *v1.Insights {
 	var insight v1.Insights
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		s := string(scanner.Bytes())
+	for identifier := range uniqueIdentifiersInFile {
 		switch {
-		case strings.HasPrefix(s, "e:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["emails"]):
 			insight.Emails++
-		case strings.HasPrefix(s, "p:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["phoneNumbers"]):
 			insight.PhoneNumbers++
-		case strings.HasPrefix(s, "i4:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["ipv4S"]):
 			insight.Ipv4S++
-		case strings.HasPrefix(s, "i6:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["ipv6S"]):
 			insight.Ipv6S++
-		case strings.HasPrefix(s, "a:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["appleIdfas"]):
 			insight.AppleIdfas++
-		case strings.HasPrefix(s, "g:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["googleGaids"]):
 			insight.GoogleGaids++
-		case strings.HasPrefix(s, "r:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["rokuRidas"]):
 			insight.RokuRidas++
-		case strings.HasPrefix(s, "s:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["samsungTifas"]):
 			insight.SamsungTifas++
-		case strings.HasPrefix(s, "f:"):
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["amazonAfais"]):
 			insight.AmazonAfais++
 		}
-		//TODO: do we handle invalid prefix type?
-		n++
+	}
+	return &insight
+}
+
+// returns unique identifiers in the file
+func GetUniqueIdentifiersInFile(r io.Reader) (map[string]bool, error) {
+	uniqueIdentifiersInFile := make(map[string]bool)
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		element := string(scanner.Bytes())
+		for _, validPrefix := range validIdentifiersPrefix {
+			if strings.HasPrefix(element, validPrefix) {
+				uniqueIdentifiersInFile[element] = true
+			}
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return n, nil, err
+		return nil, err
 	}
 
-	return n, &insight, nil
-}
-
-// safeReadLine reads each line until a newline character and returns
-// read bytes.
-func safeReadLine(r *bufio.Reader) (line []byte, err error) {
-	// read until newline
-	line, err = r.ReadBytes('\n')
-	if len(line) > 1 {
-		// strip the \n
-		line = line[:len(line)-1]
-	}
-	return
+	return uniqueIdentifiersInFile, nil
 }
 
 // clamp changes the received numbers from the partner which can have differential privacy noise in them,
