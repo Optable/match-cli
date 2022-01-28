@@ -12,7 +12,13 @@ build:
 	$(GO) build -ldflags "-X github.com/optable/match-cli/pkg/cli.version=${BUILD_VERSION}" -o bin/match-cli cmd/cli/main.go
 
 .PHONY: release
-release: darwin-amd64 darwin-arm64 linux windows
+release: darwin linux windows
+
+.PHONY: darwin
+darwin: darwin-amd64 darwin-arm64
+	$(GO) install github.com/randall77/makefat@7ddd0e42c8442593c87c1705a5545099604008e5
+	makefat release/match-cli-darwin release/match-cli-darwin-amd64 release/match-cli-darwin-arm64
+	rm release/match-cli-darwin-amd64 release/match-cli-darwin-arm64
 
 .PHONY: darwin-amd64
 darwin-amd64:
