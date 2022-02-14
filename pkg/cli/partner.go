@@ -106,13 +106,13 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 	return printJson(conf)
 }
 
-func decodeToken(token string) (*v1.PartnersInitToken, error) {
+func decodeToken(token string) (*v1.PartnerInitToken, error) {
 	json, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		return nil, err
 	}
 
-	var message v1.PartnersInitToken
+	var message v1.PartnerInitToken
 	if err := protojson.Unmarshal(json, &message); err != nil {
 		return nil, err
 	}
