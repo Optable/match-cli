@@ -56,7 +56,7 @@ type PartnerConfig struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	URL         string `json:"url"`
-	Id          string `json:"id"`
+	PublicKey   string `json:"public_key"`
 	PrivateKey  string `json:"private_key"`
 }
 
@@ -74,12 +74,10 @@ func (partner *PartnerConfig) ParsedPrivateKey() (*ecdsa.PrivateKey, error) {
 }
 
 func (partner *PartnerConfig) NewToken(expireAt time.Duration) (string, error) {
-	claims := jwt.StandardClaims{
-		Issuer:    partner.Id,
+	tok := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.StandardClaims{
+		Issuer:    partner.PublicKey,
 		ExpiresAt: time.Now().Add(expireAt).Unix(),
-	}
-
-	tok := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	})
 
 	parsedKey, err := partner.ParsedPrivateKey()
 	if err != nil {
