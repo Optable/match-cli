@@ -71,11 +71,17 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to marshal private key : %w", err)
 	}
 
+	publicKey := privateKey.Public()
+	marshaledPublicKey, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return fmt.Errorf("failed to marshal public key: %w", err)
+	}
+
 	conf := PartnerConfig{
 		Name:       p.Name,
 		URL:        token.SandboxInfo,
+		PublicKey:  base64.StdEncoding.EncodeToString(marshaledPublicKey),
 		PrivateKey: base64.StdEncoding.EncodeToString(marshaledPrivateKey),
-		Id:         token.Slug,
 	}
 
 	client, err := conf.NewClient()
@@ -83,16 +89,11 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	publicKey := privateKey.Public()
-	marshaledPublicKey, err := x509.MarshalPKIXPublicKey(publicKey)
-	if err != nil {
-		return fmt.Errorf("failed to marshal public key: %w", err)
-	}
-
 	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
-		PublicKey: base64.StdEncoding.EncodeToString(marshaledPublicKey),
+		PublicKey: conf.PublicKey,
 		Token:     p.Token,
 	})
+
 	if err != nil {
 		return fmt.Errorf("failed to register with partner: %w", err)
 	}
