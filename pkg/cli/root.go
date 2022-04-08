@@ -12,11 +12,11 @@ import (
 var version string
 
 type Cli struct {
-	Verbose int `opt:"" short:"v" type:"counter" help:"Enable debug mode."`
-
-	Version VersionCmd `cmd:"" help:"Show match-cli version."`
-	Partner PartnerCmd `cmd:"" help:"Partner command."`
-	Match   MatchCmd   `cmd:"" help:"Match command."`
+	Verbose  int        `opt:"" short:"v" type:"counter" help:"Enable debug mode."`
+	Insecure bool       `opt:"" hidden:"true"`
+	Version  VersionCmd `cmd:"" help:"Show match-cli version."`
+	Partner  PartnerCmd `cmd:"" help:"Partner command."`
+	Match    MatchCmd   `cmd:"" help:"Match command."`
 }
 
 type VersionCmd struct{}
@@ -42,6 +42,7 @@ func (c *Cli) NewContext() (*CliContext, error) {
 		return nil, err
 	}
 
+	cliCtx.insecure = c.Insecure
 	return cliCtx, nil
 }
 

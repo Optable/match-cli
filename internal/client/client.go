@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -18,6 +19,7 @@ type OptableRpcClient struct {
 	*http.Client
 	url         string
 	tokenSource TokenSource
+	insecure    bool
 }
 
 type TokenSource interface {
@@ -30,13 +32,34 @@ func (fn TokenSourceFn) Token(req *http.Request) (string, error) {
 	return fn(req)
 }
 
-func NewClient(url string, tokenSource TokenSource) *OptableRpcClient {
-	client := &http.Client{}
+type Option func(c *OptableRpcClient)
 
+func WithInsecure(insecure bool) Option {
+	return func(c *OptableRpcClient) {
+		c.insecure = insecure
+	}
+}
+
+func NewClient(url string, tokenSource TokenSource, opts ...Option) *OptableRpcClient {
 	// Remove trailing slashes
 	url = strings.TrimRight(url, "/")
+	client := &OptableRpcClient{url: url, tokenSource: tokenSource}
 
-	return &OptableRpcClient{Client: client, url: url, tokenSource: tokenSource}
+	for _, opt := range opts {
+		opt(client)
+	}
+
+	httpClient := &http.Client{}
+	if client.insecure {
+		httpClient.Transport = &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		}
+	}
+
+	client.Client = httpClient
+	return client
 }
 
 // Implementation details

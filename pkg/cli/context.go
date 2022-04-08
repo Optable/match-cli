@@ -11,6 +11,7 @@ type CliContext struct {
 	ctx        context.Context
 	config     Config
 	configPath string
+	insecure   bool
 }
 
 func (c *CliContext) LoadConfig() error {

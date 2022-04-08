@@ -11,6 +11,7 @@ import (
 
 	v1 "github.com/optable/match-api/match/v1"
 	"github.com/optable/match-cli/internal/auth"
+	"github.com/optable/match-cli/internal/client"
 	"github.com/optable/match-cli/internal/util"
 	"github.com/optable/match-cli/pkg/match"
 	"github.com/optable/match/pkg/psi"
@@ -96,7 +97,7 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("partner %s does not exist", m.Partner)
 	}
 
-	client, err := partner.NewClient()
+	client, err := partner.NewClient(client.WithInsecure(cli.insecure))
 	if err != nil {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
@@ -123,7 +124,7 @@ func (m *MatchGetResultsCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("partner %s does not exist", m.Partner)
 	}
 
-	client, err := partner.NewClient()
+	client, err := partner.NewClient(client.WithInsecure(cli.insecure))
 	if err != nil {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
@@ -155,7 +156,7 @@ func (m *MatchListCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("partner %s does not exist", m.Partner)
 	}
 
-	client, err := partner.NewClient()
+	client, err := partner.NewClient(client.WithInsecure(cli.insecure))
 	if err != nil {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
@@ -196,14 +197,10 @@ func getTLSConfig(cert *auth.EphemerealCertificate, peerCertPem, hostport string
 	}, nil
 }
 
-func pollRunMatch(ctx context.Context, partner *PartnerConfig, matchUUID string, cert *auth.EphemerealCertificate) (*v1.RunExternalMatchRes, error) {
+func pollRunMatch(ctx context.Context, client *client.OptableRpcClient, matchUUID string, cert *auth.EphemerealCertificate) (*v1.RunExternalMatchRes, error) {
 	matchResultUUID := ksuid.New().String()
 	info(ctx).Msgf("generated match result id %s", matchResultUUID)
 
-	client, err := partner.NewClient()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %w", err)
-	}
 	for {
 		info(ctx).Msgf("still polling /match/run to get match endpoint")
 		res, err := client.RunMatch(ctx, &v1.RunExternalMatchReq{
@@ -223,13 +220,8 @@ func pollRunMatch(ctx context.Context, partner *PartnerConfig, matchUUID string,
 	}
 }
 
-func pollGetMatchResult(ctx context.Context, partner *PartnerConfig, matchResultUUID string) (*v1.ExternalMatchResult, error) {
+func pollGetMatchResult(ctx context.Context, client *client.OptableRpcClient, matchResultUUID string) (*v1.ExternalMatchResult, error) {
 	// Need to create new client because of token expiry
-	client, err := partner.NewClient()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create client: %w", err)
-	}
-
 	for {
 		info(ctx).Msgf("still polling /match/get-result for results")
 		res, err := client.GetResult(ctx, &v1.GetExternalMatchResultReq{MatchResultUid: matchResultUUID})
@@ -294,9 +286,14 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	}
 	debug(ctx).Msg("Generated ephemereal certificate for tls authentication")
 
+	client, err := partner.NewClient(client.WithInsecure(cli.insecure))
+	if err != nil {
+		return fmt.Errorf("failed to create client: %w", err)
+	}
+
 	info(ctx).Msgf("polling /match/run with a timeout of %v to get match endpoint", m.InitTimeout)
 	runMatchCtx, runMatchCancel := context.WithTimeout(ctx, m.InitTimeout)
-	runMatchRes, err := pollRunMatch(runMatchCtx, partner, m.MatchID, ephemerealCertificate)
+	runMatchRes, err := pollRunMatch(runMatchCtx, client, m.MatchID, ephemerealCertificate)
 	runMatchCancel()
 	if err != nil {
 		return fmt.Errorf("failed while polling run/match: %w", err)
@@ -316,7 +313,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 	info(ctx).Msg("successfully completed PSI")
 
 	info(ctx).Msgf("polling /match/get-result for results")
-	result, err := pollGetMatchResult(ctx, partner, runMatchRes.MatchResultUid)
+	result, err := pollGetMatchResult(ctx, client, runMatchRes.MatchResultUid)
 	if err != nil {
 		return fmt.Errorf("failed to poll /match/get-result: %w", err)
 	}

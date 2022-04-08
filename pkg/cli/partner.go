@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	v1 "github.com/optable/match-api/match/v1"
+	"github.com/optable/match-cli/internal/client"
 
 	"google.golang.org/protobuf/encoding/protojson"
 )
@@ -84,7 +85,7 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		PrivateKey: base64.StdEncoding.EncodeToString(marshaledPrivateKey),
 	}
 
-	client, err := conf.NewClient()
+	client, err := conf.NewClient(client.WithInsecure(cli.insecure))
 	if err != nil {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
