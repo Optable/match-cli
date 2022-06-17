@@ -23,6 +23,7 @@ github.com/go-logr/zerologr v1.2.1/go.mod h1:O82obOiXzyxiBNgAMRT1m+XbOvY8K18Kf6X
 github.com/godbus/dbus/v5 v5.0.4/go.mod h1:xhWf0FNVPg57R7Z0UbKHbJfkEywrmjJnf7w5xrFpKfA=
 github.com/golang-jwt/jwt/v4 v4.0.0 h1:RAqyYixv1p7uEnocuy8P1nru5wprCh/MH2BIlW5z5/o=
 github.com/golang-jwt/jwt/v4 v4.0.0/go.mod h1:/xlHOz8bRuivTWchD4jCa+NbatV+wEUSzwAxVc6locg=
+github.com/golang/protobuf v1.5.0 h1:LUVKkCeviFUMKqHa4tXIIij/lbhnMbP7Fn5wKdKkRh4=
 github.com/golang/protobuf v1.5.0/go.mod h1:FsONVRAS9T7sI+LIUmWTfcYkHO4aIWwzhcaSAoJOfIk=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
@@ -30,8 +31,8 @@ github.com/gtank/ristretto255 v0.1.2 h1:JEqUCPA1NvLq5DwYtuzigd7ss8fwbYay9fi4/5uM
 github.com/gtank/ristretto255 v0.1.2/go.mod h1:Ph5OpO6c7xKUGROZfWVLiJf9icMDwUeIvY4OmlYW69o=
 github.com/optable/match v1.1.1 h1:uXbYmoZkz+LIJY/g5nPnBOySYjs4dZAXZL+4+tQzGwI=
 github.com/optable/match v1.1.1/go.mod h1:MRELiUJ6TJwfnbb6WP25iWIRiS7GiZOVMKLIcYiL+30=
-github.com/optable/match-api v1.3.0 h1:iD5Y94mQ0JdbtOjxNmQ/pdkS1DINnYB31SZi8ZAXhLo=
-github.com/optable/match-api v1.3.0/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
+github.com/optable/match-api v1.4.1 h1:gSDnLFkFzcuh5jlrKMseQSBTxlZwYGOyVd7tuTtVWuE=
+github.com/optable/match-api v1.4.1/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
