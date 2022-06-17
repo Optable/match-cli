@@ -9,7 +9,7 @@ import (
 	v1 "github.com/optable/match-api/match/v1"
 )
 
-var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:"}
+var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:", "netidTpids": "n:"}
 
 //GetInputChannel reads identifiers from a file to a channel
 func GetInputChannel(ctx context.Context, uniqueIdentifiersInFile map[string]bool) (<-chan []byte, error) {
@@ -49,6 +49,8 @@ func GetInsights(uniqueIdentifiersInFile map[string]bool) *v1.Insights {
 			insight.SamsungTifas++
 		case strings.HasPrefix(identifier, validIdentifiersPrefix["amazonAfais"]):
 			insight.AmazonAfais++
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["netidTpids"]):
+			insight.NetidTpids++
 		}
 	}
 	return &insight
@@ -122,6 +124,8 @@ func ThresholdAndClampMatchResult(result *v1.ExternalMatchResult, srcInsight *v1
 			result.Insights.SamsungTifas = clamp(srcInsight.SamsungTifas, threshold(result.Insights.SamsungTifas, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_AMAZON_AFAI:
 			result.Insights.AmazonAfais = clamp(srcInsight.AmazonAfais, threshold(result.Insights.AmazonAfais, result.Insights.DifferentialPrivacyThreshold))
+		case v1.IdKind_ID_KIND_NETID_TPID:
+			result.Insights.NetidTpids = clamp(srcInsight.NetidTpids, threshold(result.Insights.NetidTpids, result.Insights.DifferentialPrivacyThreshold))
 		}
 	}
 }
