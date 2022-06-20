@@ -166,7 +166,7 @@ func TestGetInsights(t *testing.T) {
 	if insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
 		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
 		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 ||
-		insight.NetidTpids != 1 {
+		insight.Netids != 1 {
 		t.Fatalf("get insights and identifiers failed")
 	}
 }
