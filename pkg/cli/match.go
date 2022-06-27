@@ -104,7 +104,7 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 	allMatchableIdKind := make([]v1.IdKind, 0, len(v1.IdKind_name)-1)
 	for i, _ := range v1.IdKind_name {
 		// skip UNKNOWN IdKind
-		if i == 0 {
+		if v1.IdKind(i) == v1.IdKind_ID_KIND_UNKNOWN {
 			continue
 		}
 		allMatchableIdKind = append(allMatchableIdKind, v1.IdKind(i))
