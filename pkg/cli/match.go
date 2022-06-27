@@ -101,6 +101,15 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
+	allMatchableIdKind := make([]v1.IdKind, 0, len(v1.IdKind_name)-1)
+	for i, _ := range v1.IdKind_name {
+		// skip UNKNOWN IdKind
+		if i == 0 {
+			continue
+		}
+		allMatchableIdKind = append(allMatchableIdKind, v1.IdKind(i))
+	}
+
 	req := &v1.CreateExternalMatchReq{
 		MatchUid: ksuid.New().String(),
 		Name:     m.Name,
@@ -108,18 +117,7 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 			Adhoc: &v1.ExternalMatchRefreshAdhoc{},
 		},
 		// by default send all identifier types.
-		IdentifiersFilter: []v1.IdKind{
-			v1.IdKind_ID_KIND_EMAIL_HASH,
-			v1.IdKind_ID_KIND_APPLE_IDFA,
-			v1.IdKind_ID_KIND_GOOGLE_GAID,
-			v1.IdKind_ID_KIND_IPV4,
-			v1.IdKind_ID_KIND_IPV6,
-			v1.IdKind_ID_KIND_SAMSUNG_TIFA,
-			v1.IdKind_ID_KIND_ROKU_RIDA,
-			v1.IdKind_ID_KIND_AMAZON_AFAI,
-			v1.IdKind_ID_KIND_PHONE_NUMBER,
-			v1.IdKind_ID_KIND_NETID,
-		},
+		IdentifiersFilter: allMatchableIdKind,
 	}
 
 	res, err := client.CreateMatch(cli.ctx, req)
