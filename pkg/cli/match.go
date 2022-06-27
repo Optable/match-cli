@@ -107,6 +107,19 @@ func (m *MatchCreateCmd) Run(cli *CliContext) error {
 		RefreshFrequency: &v1.CreateExternalMatchReq_Adhoc{
 			Adhoc: &v1.ExternalMatchRefreshAdhoc{},
 		},
+		// by default send all identifier types.
+		IdentifiersFilter: []v1.IdKind{
+			v1.IdKind_ID_KIND_EMAIL_HASH,
+			v1.IdKind_ID_KIND_APPLE_IDFA,
+			v1.IdKind_ID_KIND_GOOGLE_GAID,
+			v1.IdKind_ID_KIND_IPV4,
+			v1.IdKind_ID_KIND_IPV6,
+			v1.IdKind_ID_KIND_SAMSUNG_TIFA,
+			v1.IdKind_ID_KIND_ROKU_RIDA,
+			v1.IdKind_ID_KIND_AMAZON_AFAI,
+			v1.IdKind_ID_KIND_PHONE_NUMBER,
+			v1.IdKind_ID_KIND_NETID,
+		},
 	}
 
 	res, err := client.CreateMatch(cli.ctx, req)
