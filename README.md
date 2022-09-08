@@ -3,7 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/optable/match-cli)](https://goreportcard.com/report/github.com/optable/match-cli)
 [![GoDoc](https://godoc.org/github.com/optable/match-cli?status.svg)](https://godoc.org/github.com/optable/match-cli)
 
-An open-source Command Line Interface (CLI) utility written in Golang to allow any *partner* of an Optable Data Connectivity Node (DCN) user to perform secure matches with the DCN. 
+An open-source Command Line Interface (CLI) utility written in Golang to allow any *partner* of an Optable Data Collaboration Node (DCN) user to perform secure matches with the DCN. 
 
 The match-cli tool enables anyone without access to an Optable DCN (_external partners_) to create and run a secure private set intersection (PSI) match with an Optable DCN customer using the open-source [match](https://github.com/Optable/match) library. Both parties will run the [DHPSI](https://github.com/Optable/match/blob/main/pkg/dhpsi/README.md) protocol by default to ensure that non-overlapping data is protected during the match. 
 
