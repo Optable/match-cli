@@ -58,6 +58,8 @@ workflows:
             branches:
               only: /.*/
       - publish-github-release:
+          context:
+            - github-bot-public-repo-creds
           requires:
             - build
           filters:
