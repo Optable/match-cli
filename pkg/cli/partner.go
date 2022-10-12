@@ -90,12 +90,8 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 	}
 
 	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
-		PartnerInfo: &v1.RegisterPartnerReq_HeadlessPartner{
-			HeadlessPartner: &v1.HeadlessPartner{
-				PublicKey: conf.PublicKey,
-				Token:     p.Token,
-			},
-		},
+		PublicKey: conf.PublicKey,
+		Token:     p.Token,
 	})
 
 	if err != nil {
