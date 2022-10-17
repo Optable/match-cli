@@ -23,13 +23,13 @@ darwin: darwin-amd64 darwin-arm64
 .PHONY: darwin-amd64
 darwin-amd64:
 	make clean-bin ;\
- 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 make build ;\
+	CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 make build ;\
 	mkdir -p release && cp bin/match-cli release/match-cli-darwin-amd64
 
 .PHONY: darwin-arm64
 darwin-arm64:
 	make clean-bin ;\
- 	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 make build ;\
+	CGO_ENABLED=1 GOOS=darwin GOARCH=arm64 make build ;\
 	mkdir -p release && cp bin/match-cli release/match-cli-darwin-arm64
 
 .PHONY: linux
