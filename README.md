@@ -32,16 +32,16 @@ To perform a secure PSI match with a DCN, you must first obtain an `<invite-code
 $ bin/match-cli partner connect <partner-name> "<invite-code>"
 ```
 
-After successful partnering, a match can be created. You can use `<match-name>` to identify and manage matches. A `match_uuid` will be displayed in a JSON-formatted output once the match is succefully created.
+After successful partnering, a match can be created. You can use `<match-name>` to identify and manage matches. A `match_uuid` will be displayed in a JSON-formatted output once the match is successfully created.
 ```bash
 $ bin/match-cli match create <partner-name> <match-name>
-$ {"match_uuid":"UUID"}
+$ {"match_uid":"UUID"}
 ```
 
 Note that you are not required to save the `<match_uuid>`, you can run the following command to retrieve it later:
 ```bash
 $ bin/match-cli match list <partner-name>
-$ {"match_uuid":"UUID","name":"<match-name>"}
+$ {"match_uid":"UUID","name":"<match-name>"}
 ```
 You can then run a match with an input file that contains matchable identifiers as follows:
 ```bash
