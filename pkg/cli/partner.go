@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"fmt"
+	"regexp"
 
 	v1 "github.com/optable/match-api/match/v1"
 
@@ -23,7 +24,9 @@ type (
 
 	PartnerConnectCmd struct {
 		Name  string `arg:"" required:"" help:"Name of the partner."`
-		Token string `arg:"" required:"" help:"The invite token from the partner"`
+		Token string `arg:"" required:"" help:"The invite token from the partner."`
+		OrganizationName string `hidden:"" help:"Organization Name must be between 2 and 64 characters."`
+		UniqueNodeId string `hidden:"" help:"Unique Node ID must start with an alphabet, contains only alphanumerical(lowercase) and dashes, and be between 3 to 64 characters."`
 	}
 
 	PartnerCmd struct {
@@ -55,6 +58,14 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 	existingPartner := cli.config.findPartner(p.Name)
 	if existingPartner != nil {
 		return fmt.Errorf("a partner with name %s already exists", p.Name)
+	}
+
+	if len(p.OrganizationName) < 2 || 64 < len(p.OrganizationName) {
+		return fmt.Errorf("organization name must be between 2 and 64 characters")
+	}
+
+	if err := validateNodeId(p.UniqueNodeId); err != nil {
+		return err
 	}
 
 	token, err := decodeToken(p.Token)
@@ -89,9 +100,23 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
+	headlessPartner := 	&v1.HeadlessPartner{
 		PublicKey: conf.PublicKey,
-		Token:     p.Token,
+		Token:    p.Token,
+	}
+
+	if p.OrganizationName != "" {
+		headlessPartner.OrganizationName = p.OrganizationName
+	}
+
+	if p.UniqueNodeId != "" {
+		headlessPartner.NodeId = p.UniqueNodeId
+	}
+
+	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
+		PartnerInfo: &v1.RegisterPartnerReq_HeadlessPartner{
+			HeadlessPartner: headlessPartner,
+		},
 	})
 
 	if err != nil {
@@ -118,4 +143,22 @@ func decodeToken(token string) (*v1.PartnerInitToken, error) {
 		return nil, err
 	}
 	return &message, nil
+}
+
+func validateNodeId(nodeId string) error {
+	isAlphabet := regexp.MustCompile(`^[a-z]`).MatchString
+	if !isAlphabet(nodeId[0:1]) {
+		return fmt.Errorf("node id must start with an alphabet")
+	}
+
+	isAplhanumericOrDash := regexp.MustCompile(`^[a-z0-9-]+$`).MatchString
+	if !isAplhanumericOrDash(nodeId) {
+		return fmt.Errorf("node id must contain only alphanumerical(lowercase) and dashes")
+	}
+
+	if len(nodeId) < 3 || 64 < len(nodeId) {
+		return fmt.Errorf("node id must be between 2 and 64 characters")
+	}
+	
+	return nil
 }
