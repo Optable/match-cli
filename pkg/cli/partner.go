@@ -25,8 +25,8 @@ type (
 	PartnerConnectCmd struct {
 		Name  string `arg:"" required:"" help:"Name of the partner."`
 		Token string `arg:"" required:"" help:"The invite token from the partner."`
-		OrganizationName string `hidden:"" help:"Organization Name must be between 2 and 64 characters."`
-		UniqueNodeId string `hidden:"" help:"Unique Node ID must start with an alphabet, contains only alphanumerical(lowercase) and dashes, and be between 3 to 64 characters."`
+		OrganizationName string `arg:"" required:"" help:"Organization Name must be between 2 and 64 characters."`
+		UniqueNodeId string `arg:"" required:"" help:"Unique Node ID must start with an alphabet, contains only alphanumerical(lowercase) and dashes, and be between 3 to 64 characters."`
 	}
 
 	PartnerCmd struct {
@@ -100,22 +100,14 @@ func (p *PartnerConnectCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	headlessPartner := 	&v1.HeadlessPartner{
-		PublicKey: conf.PublicKey,
-		Token:    p.Token,
-	}
-
-	if p.OrganizationName != "" {
-		headlessPartner.OrganizationName = p.OrganizationName
-	}
-
-	if p.UniqueNodeId != "" {
-		headlessPartner.NodeId = p.UniqueNodeId
-	}
-
 	err = client.RegisterPartner(cli.ctx, &v1.RegisterPartnerReq{
 		PartnerInfo: &v1.RegisterPartnerReq_HeadlessPartner{
-			HeadlessPartner: headlessPartner,
+			HeadlessPartner: &v1.HeadlessPartner{
+				PublicKey: conf.PublicKey,
+				Token:    p.Token,
+				OrganizationName: p.OrganizationName,
+				NodeId: p.UniqueNodeId,
+			},
 		},
 	})
 
