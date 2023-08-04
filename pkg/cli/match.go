@@ -114,10 +114,7 @@ func matchFromProto(matchpb *v1.ExternalMatch) *matchRecord {
 		Description: matchpb.Description,
 		CreatedAt:   matchpb.CreatedAt,
 		State:       matchStateFromProto(matchpb.State),
-	}
-
-	if matchpb.Results != nil {
-		match.Results = matchpb.Results
+		Results:     matchpb.Results,
 	}
 
 	return match
