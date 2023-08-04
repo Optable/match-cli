@@ -37,6 +37,8 @@ github.com/optable/match-api v1.4.6-0.20230803150636-f04f742a5054 h1:gmCdLAWUmoE
 github.com/optable/match-api v1.4.6-0.20230803150636-f04f742a5054/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
 github.com/optable/match-api v1.4.6-0.20230803171628-7e509adb5e37 h1:d15+b04vIryHe3dy3WJfJ4r79CjxPq1WEltZdA1klaY=
 github.com/optable/match-api v1.4.6-0.20230803171628-7e509adb5e37/go.mod h1:Nnv8Zcs4p71WDSgFy/FcjxnHBL+Dane7cimb4+SJDEA=
+github.com/optable/match-api v1.4.6-0.20230804160514-0de457640fa9 h1:3p50QtlmnEGpwYSPKz3DVDMf5x7Kygr7PFSbiJr2vT4=
+github.com/optable/match-api v1.4.6-0.20230804160514-0de457640fa9/go.mod h1:gzCtx6y62Kcl8Gy/2neZhz+Bk/fFx8e/6WSpL3Pq2ec=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

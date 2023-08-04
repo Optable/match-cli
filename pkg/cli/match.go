@@ -31,20 +31,20 @@ type (
 	}
 
 	MatchGetCmd struct {
-		Partner string `arg:"" required:"" help:"Name of the partner"`
-		MatchId string `arg:"" required:"" help:"ID of the match"`
+		Partner  string `arg:"" required:"" help:"Name of the partner"`
+		MatchUid string `arg:"" required:"" help:"ID of the match"`
 	}
 
 	MatchGetResultsCmd struct {
-		Partner string `arg:"" required:"" help:"Name of the partner"`
-		MatchId string `arg:"" required:"" help:"ID of the match"`
+		Partner  string `arg:"" required:"" help:"Name of the partner"`
+		MatchUid string `arg:"" required:"" help:"ID of the match"`
 	}
 
 	MatchRunCmd struct {
 		Partner     string        `arg:"" required:"" help:"Name of the partner"`
 		InitTimeout time.Duration `default:"10m" help:"Timeout for the initialization of the match"`
 		RunTimeout  time.Duration `default:"30m" help:"Timeout for the match operation"`
-		MatchID     string        `arg:"" required:"" help:"ID of the match"`
+		MatchUid    string        `arg:"" required:"" help:"ID of the match"`
 		File        *os.File      `arg:"" required:"" help:"File to match"`
 		Protocol    string        `default:"dhpsi" enum:"kkrtpsi,dhpsi" help:"Preferred PSI protocol"`
 	}
@@ -96,6 +96,8 @@ func matchStateFromProto(state v1.ExternalMatchState) string {
 		return "done"
 	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_ACTIVE:
 		return "active"
+	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_ARCHIVED:
+		return "archived"
 	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_ERRORED:
 		return "errored"
 	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_UNKNOWN:
@@ -187,7 +189,7 @@ func (m *MatchGetResultsCmd) Run(cli *CliContext) error {
 	}
 
 	req := &v1.GetExternalMatchResultsReq{
-		MatchUid: m.MatchId,
+		MatchUid: m.MatchUid,
 	}
 
 	res, err := client.GetMatchResults(cli.ctx, req)
@@ -243,7 +245,7 @@ func (m *MatchGetCmd) Run(cli *CliContext) error {
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	req := &v1.GetExternalMatchReq{MatchUid: m.MatchId}
+	req := &v1.GetExternalMatchReq{MatchUid: m.MatchUid}
 	res, err := client.GetMatch(cli.ctx, req)
 	if err != nil {
 		return err
@@ -344,7 +346,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	ctx, cancel := context.WithTimeout(ctx, m.RunTimeout)
 	defer cancel()
-	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchID, m.RunTimeout)
+	info(ctx).Msgf("running match %s with a timeout of %v", m.MatchUid, m.RunTimeout)
 
 	uniqueIdentifiersInFile, err := util.GetUniqueIdentifiersInFile(m.File)
 	if err != nil {
@@ -377,7 +379,7 @@ func (m *MatchRunCmd) Run(cli *CliContext) error {
 
 	info(ctx).Msgf("polling /match/run with a timeout of %v to get match endpoint", m.InitTimeout)
 	runMatchCtx, runMatchCancel := context.WithTimeout(ctx, m.InitTimeout)
-	runMatchRes, err := pollRunMatch(runMatchCtx, partner, m.MatchID, ephemerealCertificate)
+	runMatchRes, err := pollRunMatch(runMatchCtx, partner, m.MatchUid, ephemerealCertificate)
 	runMatchCancel()
 	if err != nil {
 		return fmt.Errorf("failed while polling run/match: %w", err)
