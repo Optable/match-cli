@@ -17,6 +17,7 @@ import (
 
 	"github.com/segmentio/ksuid"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type (
@@ -27,6 +28,11 @@ type (
 
 	MatchListCmd struct {
 		Partner string `arg:"" required:"" help:"Name of the partner"`
+	}
+
+	MatchGetCmd struct {
+		Partner string `arg:"" required:"" help:"Name of the partner"`
+		MatchId string `arg:"" required:"" help:"ID of the match"`
 	}
 
 	MatchGetResultsCmd struct {
@@ -46,6 +52,7 @@ type (
 	MatchCmd struct {
 		Create     MatchCreateCmd     `cmd:"" help:"Create a match"`
 		List       MatchListCmd       `cmd:"" help:"List matches"`
+		Get        MatchGetCmd        `cmd:"" help:"Get match"`
 		GetResults MatchGetResultsCmd `cmd:"" help:"Get match results"`
 		Run        MatchRunCmd        `cmd:"" help:"Run a match"`
 	}
@@ -57,6 +64,15 @@ type matchResult struct {
 	State    string       `json:"state"`
 	ErrorMsg string       `json:"error_msg,omitempty"`
 	Results  *v1.Insights `json:"results,omitempty"`
+}
+
+type matchRecord struct {
+	MatchUid    string                    `json:"match_uid"`
+	Name        string                    `json:"name"`
+	Description string                    `json:"description"`
+	Results     []*v1.ExternalMatchResult `json:"results"`
+	CreatedAt   *timestamppb.Timestamp    `json:"created_at"`
+	State       string                    `json:"state"`
 }
 
 func matchResultStateFromProto(state v1.ExternalMatchResultState) string {
@@ -72,6 +88,37 @@ func matchResultStateFromProto(state v1.ExternalMatchResultState) string {
 	default:
 		return "unknown"
 	}
+}
+
+func matchStateFromProto(state v1.ExternalMatchState) string {
+	switch state {
+	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_DONE:
+		return "done"
+	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_ACTIVE:
+		return "active"
+	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_ERRORED:
+		return "errored"
+	case v1.ExternalMatchState_EXTERNAL_MATCH_STATE_UNKNOWN:
+		fallthrough
+	default:
+		return "unknown"
+	}
+}
+
+func matchFromProto(matchpb *v1.ExternalMatch) *matchRecord {
+	match := &matchRecord{
+		MatchUid:    matchpb.MatchUid,
+		Name:        matchpb.Name,
+		Description: matchpb.Description,
+		CreatedAt:   matchpb.CreatedAt,
+		State:       matchStateFromProto(matchpb.State),
+	}
+
+	if matchpb.Results != nil {
+		match.Results = matchpb.Results
+	}
+
+	return match
 }
 
 func matchResultFromProto(resultpb *v1.ExternalMatchResult) *matchResult {
@@ -178,9 +225,32 @@ func (m *MatchListCmd) Run(cli *CliContext) error {
 	}
 
 	for _, match := range res.Matches {
-		if err := printJson(match); err != nil {
+		if err := printJson(matchFromProto(match)); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func (m *MatchGetCmd) Run(cli *CliContext) error {
+	partner := cli.config.findPartner(m.Partner)
+	if partner == nil {
+		return fmt.Errorf("partner %s does not exist", m.Partner)
+	}
+
+	client, err := partner.NewClient()
+	if err != nil {
+		return fmt.Errorf("failed to create client: %w", err)
+	}
+
+	req := &v1.GetExternalMatchReq{MatchUid: m.MatchId}
+	res, err := client.GetMatch(cli.ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if err := printJson(matchFromProto(res.Match)); err != nil {
+		return err
 	}
 	return nil
 }

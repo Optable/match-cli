@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/zerologr v1.2.1
 	github.com/golang-jwt/jwt/v4 v4.0.0
 	github.com/optable/match v1.2.1
-	github.com/optable/match-api v1.4.4
+	github.com/optable/match-api v1.4.6-0.20230803171628-7e509adb5e37
 	github.com/rs/zerolog v1.25.0
 	github.com/segmentio/ksuid v1.0.3
 	google.golang.org/protobuf v1.27.1

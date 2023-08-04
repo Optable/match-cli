@@ -38,6 +38,14 @@ func (c *OptableRpcClient) ListMatches(ctx context.Context, req *v1.ListExternal
 	return res, nil
 }
 
+func (c *OptableRpcClient) GetMatch(ctx context.Context, req *v1.GetExternalMatchReq) (*v1.GetExternalMatchRes, error) {
+	res := &v1.GetExternalMatchRes{}
+	if err := c.Do(ctx, "/match/get", req, res); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (c *OptableRpcClient) GetMatchResults(ctx context.Context, req *v1.GetExternalMatchResultsReq) (*v1.GetExternalMatchResultsRes, error) {
 	res := &v1.GetExternalMatchResultsRes{}
 	if err := c.Do(ctx, "/match/get-results", req, res); err != nil {
