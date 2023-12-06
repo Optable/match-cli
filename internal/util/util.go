@@ -9,9 +9,9 @@ import (
 	v1 "github.com/optable/match-api/match/v1"
 )
 
-var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:", "netids": "n:"}
+var validIdentifiersPrefix = map[string]string{"emails": "e:", "phoneNumbers": "p:", "ipv4S": "i4:", "ipv6S": "i6:", "appleIdfas": "a:", "googleGaids": "g:", "rokuRidas": "r:", "samsungTifas": "s:", "amazonAfais": "f:", "netids": "n:", "postalCodes": "z:"}
 
-//GetInputChannel reads identifiers from a file to a channel
+// GetInputChannel reads identifiers from a file to a channel
 func GetInputChannel(ctx context.Context, uniqueIdentifiersInFile map[string]bool) (<-chan []byte, error) {
 	// make the output channel
 	identifiers := make(chan []byte)
@@ -51,6 +51,8 @@ func GetInsights(uniqueIdentifiersInFile map[string]bool) *v1.Insights {
 			insight.AmazonAfais++
 		case strings.HasPrefix(identifier, validIdentifiersPrefix["netids"]):
 			insight.Netids++
+		case strings.HasPrefix(identifier, validIdentifiersPrefix["postalCodes"]):
+			insight.PostalCodes++
 		}
 	}
 	return &insight
@@ -126,6 +128,8 @@ func ThresholdAndClampMatchResult(result *v1.ExternalMatchResult, srcInsight *v1
 			result.Insights.AmazonAfais = clamp(srcInsight.AmazonAfais, threshold(result.Insights.AmazonAfais, result.Insights.DifferentialPrivacyThreshold))
 		case v1.IdKind_ID_KIND_NETID:
 			result.Insights.Netids = clamp(srcInsight.Netids, threshold(result.Insights.Netids, result.Insights.DifferentialPrivacyThreshold))
+		case v1.IdKind_ID_KIND_POSTAL_CODE:
+			result.Insights.PostalCodes = clamp(srcInsight.PostalCodes, threshold(result.Insights.PostalCodes, result.Insights.DifferentialPrivacyThreshold))
 		}
 	}
 }
