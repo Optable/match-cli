@@ -27,6 +27,7 @@ s:alhjklashsjklfahs23e0923ur420
 n:3g---iNqaaXav5Wzp8m9h7mg68ChHKV9IDjaMgpTRKFkLSKN4SM3hMTvsviB1riileyz0A
 z:H0H0H0
 id5:ID5-Sjw-6xJQtdazsH23
+u:00000000-0000-0000-0000-000000000000
 invalidIdentifier`
 
 var inputMap = map[string]bool{
@@ -45,8 +46,9 @@ var inputMap = map[string]bool{
 	"f:21312230udklsjfaklhjda":        true,
 	"s:alhjklashsjklfahs23e0923ur420": true,
 	"n:3g---iNqaaXav5Wzp8m9h7mg68ChHKV9IDjaMgpTRKFkLSKN4SM3hMTvsviB1riileyz0A": true,
-	"z:H0H0H0":                 true,
-	"id5:ID5-Sjw-6xJQtdazsH23": true,
+	"z:H0H0H0":                               true,
+	"id5:ID5-Sjw-6xJQtdazsH23":               true,
+	"u:00000000-0000-0000-0000-000000000000": true,
 }
 
 func TestClamp(t *testing.T) {
@@ -137,7 +139,7 @@ func TestGetInputChannel(t *testing.T) {
 		chanLength++
 	}
 
-	if chanLength != 17 {
+	if chanLength != 18 {
 		t.Fatal("get input channel failed")
 	}
 }
@@ -159,7 +161,7 @@ func TestGetUniqueIdentifiersInFile(t *testing.T) {
 		t.Fatal("Invalid identifier found")
 	}
 
-	if len(uniqueIdentifiersInFile) != 17 {
+	if len(uniqueIdentifiersInFile) != 18 {
 		t.Fatal("get unique elements failed")
 	}
 }
@@ -170,7 +172,7 @@ func TestGetInsights(t *testing.T) {
 	if insight.Emails != 3 || insight.Ipv4S != 2 || insight.Ipv6S != 1 ||
 		insight.PhoneNumbers != 2 || insight.AppleIdfas != 1 || insight.SamsungTifas != 1 ||
 		insight.GoogleGaids != 2 || insight.RokuRidas != 1 || insight.AmazonAfais != 1 ||
-		insight.Netids != 1 || insight.PostalCodes != 1 || insight.Id5S != 1 {
+		insight.Netids != 1 || insight.PostalCodes != 1 || insight.Id5S != 1 || insight.Utiqs != 1 {
 		t.Fatalf("get insights and identifiers failed")
 	}
 }
