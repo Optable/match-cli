@@ -27,7 +27,7 @@ s:alhjklashsjklfahs23e0923ur420
 n:3g---iNqaaXav5Wzp8m9h7mg68ChHKV9IDjaMgpTRKFkLSKN4SM3hMTvsviB1riileyz0A
 z:H0H0H0
 id5:ID5-Sjw-6xJQtdazsH23
-u:00000000-0000-0000-0000-000000000000
+utiq:00000000-0000-0000-0000-000000000000
 invalidIdentifier`
 
 var inputMap = map[string]bool{
@@ -46,9 +46,9 @@ var inputMap = map[string]bool{
 	"f:21312230udklsjfaklhjda":        true,
 	"s:alhjklashsjklfahs23e0923ur420": true,
 	"n:3g---iNqaaXav5Wzp8m9h7mg68ChHKV9IDjaMgpTRKFkLSKN4SM3hMTvsviB1riileyz0A": true,
-	"z:H0H0H0":                               true,
-	"id5:ID5-Sjw-6xJQtdazsH23":               true,
-	"u:00000000-0000-0000-0000-000000000000": true,
+	"z:H0H0H0":                 true,
+	"id5:ID5-Sjw-6xJQtdazsH23": true,
+	"utiq:00000000-0000-0000-0000-000000000000": true,
 }
 
 func TestClamp(t *testing.T) {
