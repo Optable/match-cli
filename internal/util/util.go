@@ -22,7 +22,7 @@ var validIdentifiersPrefix = map[string]string{
 	"netids":       "n:",
 	"postalCodes":  "z:",
 	"id5s":         "id5:",
-	"utiqs":        "utiq:",
+	"utiqs":        "u:",
 }
 
 // GetInputChannel reads identifiers from a file to a channel
